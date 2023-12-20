@@ -7,9 +7,11 @@ const katex = require('rehype-katex')
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Waku',
-  url: 'https://url',
+  title: 'Vac RFC',
+  url: process.env.SITE_URL ?? 'https://rfc.vac.dev',
   baseUrl: '/',
+  onBrokenLinks: 'warn',
+  onBrokenMarkdownLinks: 'warn',
 
   markdown: {
     mermaid: true,
@@ -29,6 +31,7 @@ const config = {
       /** @type {import('@acid-info/logos-docusaurus-preset').PluginOptions} */
       ({
         businessUnit: 'VacResearch',
+        customSiteConfig: true,
         theme: {
           name: 'default',
           options: {
