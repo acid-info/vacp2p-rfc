@@ -1,7 +1,9 @@
 ---
-title: Vac RFCs
+title: Introduction 
 sidebar_position: 0
 ---
+
+# Vac RFCs
 
 ## Specifications
 Here you can find specifications for [Vac.dev](https://vac.dev), a modular, peer-to-peer messaging stack for private, secure, censorship resistant communication.
