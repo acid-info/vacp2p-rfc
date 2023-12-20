@@ -11,7 +11,7 @@ contributors:
 ---
 
 
-# Abstract
+## Abstract
 
 This document specifies a deanonymization mitigation technique,
 based on [Dandelion](https://arxiv.org/abs/1701.04439) and [Dandelion++](https://arxiv.org/abs/1805.11060),
@@ -23,7 +23,7 @@ Based on the insight that symmetric message propagation makes deanonymization ea
 it introduces a probability for nodes to simply forward the message to one select relay node
 instead of disseminating messages as per usual relay operation.
 
-# Background and Motivation
+## Background and Motivation
 
 [Waku Relay](/spec/11/), offers privacy, pseudonymity, and a first layer of anonymity protection by design.
 Being a modular protocol family [Waku v2](/spec/10/)
@@ -63,7 +63,7 @@ We will refine design decisions in future versions of this specification.
 
 Further information on Waku anonymity may be found in our [Waku Privacy and Anonymity Analysis](https://vac.dev/wakuv2-relay-anon).
 
-# Theory and Functioning
+## Theory and Functioning
 
 44/WAKU2-DANDELION can be seen as an anonymity enhancing add-on to [Waku Relay](https://rfc.vac.dev/spec/11/) message dissemination,
 which is based on [libp2p gossipsub](https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/README.md).
@@ -101,12 +101,12 @@ once they arrive at a node in fluff state for the first time.
 There are no negative effects on gossipsub peer scoring,
 because Dandelion nodes in *stem state* still normally relay Waku Relay (gossipsub) messages.
 
-# Specification
+## Specification
 
 Nodes $v$ supporting 44/WAKU2-DANDELION MUST either be in stem state or in fluff state.
 This does not include relaying messages originated in $v$, for which $v$ SHOULD always be in stem state.
 
-## Choosing the State
+### Choosing the State
 
 On startup and when a new epoch starts,
 node $v$ randomly selects a number $r$ between 0 and 1.
@@ -115,7 +115,7 @@ If $r < q$, for $q = 0.2$, the node enters fluff state, otherwise, it enters ste
 New epochs start when `unixtime` (in seconds) $\equiv 0 \mod 600$,
 corresponding to 10 minute epochs.
 
-## Stem State
+### Stem State
 
 On entering stem state,
 nodes supporting 44/WAKU2-DANDELION MUST randomly select two nodes for each pubsub topic from the respective gossipsub mesh node set.
@@ -143,7 +143,7 @@ and MUST NOT send control messages related to stem messages.
 (An existing gossipsub implementation does *not* have to be adjusted to not send gossip about stem messages,
 because these messages are only handed to gossipsub once they enter fluff phase.)
 
-### Fail Safe
+#### Fail Safe
 
 Nodes $v$ in stem state SHOULD store messages attached with a random timer between $t_1 = 5 * 100ms$ and $t_2 = 2 * t_1$.
 This time interval is chosen because
@@ -154,7 +154,7 @@ This time interval is chosen because
 If $v$ does not receive a given message via Waku Relay (fluff) before the respective timer runs out,
 $v$ will disseminate the message via Waku Relay.
 
-## Fluff State
+### Fluff State
 
 In fluff state, nodes operate as usual Waku Relay nodes.
 The Waku Relay functionality might be augmented by a future specification, e.g. adding random delays.
@@ -163,16 +163,16 @@ Note: The [Dandelion](https://arxiv.org/abs/1701.04439) paper describes the fluf
 Since Dandelion is designed as an update to the Bitcoin network using diffusion spreading,
 this regular forwarding already comprises random delays.
 
-# Implementation Notes
+## Implementation Notes
 
 Handling of the 44/WAKU2-DANDELION stem phase can be implemented as an extension to an existing [19/WAKU2-LIGHTPUSH](/spec/19/) implementation.
 
 Fluff phase augmentations might alter gossipsub message dissemination (e.g. adding random delays).
 If this is the case, they have to be implemented on the libp2p gossipsub layer.
 
-# Security/Privacy Considerations
+## Security/Privacy Considerations
 
-## Denial of Service: Black Hole Attack
+### Denial of Service: Black Hole Attack
 
 In a [black hole attack](/spec/45/#black-hole-internal), malicious nodes prevent messages from being spread,
 metaphorically not allowing messages to leave once they entered.
@@ -182,9 +182,9 @@ Dandelion spreading reduces the requirements for a black hole attack.
 
 The fail-safe mechanism specified in this document (proposed in the Dandelion paper), mitigates this.
 
-## Anonymity Considerations
+### Anonymity Considerations
 
-### Attacker Model and Anonymity Goals
+#### Attacker Model and Anonymity Goals
 
 44/WAKU2-DANDELION provides significant mitigation against mass deanonymization in the
 passive [scaling multi node model](/spec/45/#scaling-multi-node).
@@ -197,7 +197,7 @@ We will elaborate on this in future versions of this document.
 
 44/WAKU2-DANDELION does not protect against targeted deanonymization attacks.
 
-### Non-Dandelion Peers
+#### Non-Dandelion Peers
 
 Stem relays receiving messages can either be in stem state or in fluff state themselves.
 They might also not support 44/WAKU2-DANDELION,
@@ -207,7 +207,7 @@ While such peers lower the overall anonymity properties,
 the [Dandelion++ paper](https://arxiv.org/abs/1805.11060)
 showed that including those peers yields more anonymity compared to excluding these peers.
 
-## Future Analysis
+### Future Analysis
 
 The following discusses potential relaxations in favour of reduced latency,
 as well as their impact on anonymity.
@@ -220,7 +220,7 @@ Generally, there are several design choices to be made for the stem phase of a D
 3) the rate of re-selecting stem relays among all gossipsub mesh peers (for a given pubsub topic), and
 4) the mapping of incoming connections to outgoing connections.
 
-### Bound Stem Length
+#### Bound Stem Length
 
 Choosing $q = 0.2$, 44/WAKU2-DANDELION has an expected stem length of 5 hops,
 Assuming $100ms$ added delay per hop, the stem phase adds around 500ms delay on average.
@@ -235,7 +235,7 @@ This information reduces the uncertainty of attackers
 when calculating the probability distribution assigning each node a probability for having sent a specific message.
 We will quantify the resulting loss of anonymity in future versions of this document.
 
-### Stem Relay Selection
+#### Stem Relay Selection
 
 In its current version, 44/WAKU2-DANDELION nodes default to fluff state
 if the random stem relay selection yields at least one peer that does not support [19/WAKU2-LIGHTPUSH](/spec/19/) (which is the stem protocol used in 44/WAKU2-DANDELION).
@@ -245,7 +245,7 @@ Even though this causes messages to enter fluff phase earlier,
 we choose the trade-off in favour of protocol stability and sacrifice a bit of anonymity.
 (We will look into improving this in future versions of this document.)
 
-### Random Delay in Fluff Phase
+#### Random Delay in Fluff Phase
 
 [Dandelion](https://arxiv.org/abs/1701.04439) and [Dandelion++](https://arxiv.org/abs/1805.11060)
 assume adding random delays in the fluff phase as they build on Bitcoin diffusion.
@@ -268,7 +268,7 @@ which Waku Relay builds upon.
 Note: Introducing random delays can have a negative effect on
 [peer scoring](https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/gossipsub-v1.1.md#peer-scoring).
 
-### Stem Flag
+#### Stem Flag
 
 While 44/WAKU2-DANDELION without fluff augmentation does not effect Waku Relay nodes,
 messages sent by nodes that only support [19/WAKU2-LIGHTPUSH](/spec/19/) might be routed through a Dandelion stem without them knowing.
@@ -282,11 +282,11 @@ In future versions of this specification we might
 
 In the current version, we decided against these options in favour of a simpler protocol and an increased anonymity set.
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 * [Dandelion](https://arxiv.org/abs/1701.04439)
 * [Dandelion++](https://arxiv.org/abs/1805.11060)

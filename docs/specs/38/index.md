@@ -15,7 +15,7 @@ contributors:
     - Mark Evenson
 ---
 
-# Abstract
+## Abstract
 
 This document specifies Claro: a Byzantine, fault-tolerant, binary decision
 agreement algorithm that utilizes bounded memory for its execution.
@@ -29,12 +29,12 @@ publication.
 
 NOTE: We have renamed this variant to `Claro` from `Glacier` in order to disambiguate from a previously released research endeavor by [Amores-Sesar, Cachin, and Tedeschi](https://arxiv.org/pdf/2210.03423.pdf). Their naming was coincidentally named the same as our work but is sufficiently differentiated from how ours works. 
 
-# Motivation 
+## Motivation 
 This work is a part of a larger research endeavor to explore highly scalable Byzantine Fault Tolerant (BFT) consensus protocols. Consensus lies at the heart of many decentralized protocols, and thus its characteristics and properties are inherited by applications built on top. Thus, we seek to improve upon the current state of the art in two main directions: base-layer scalability and censorship resistance. 
 
 Avalanche has shown to exibit the former in a production environment in a way that is differentiated from Nakamoto consensus and other Proof of Stake (PoS) protocols based in practical Byzantine Fault Tolerant (pBFT) methodologies. We aim to understand its limitations and improve upon them.
 
-## Background
+### Background
 Our starting point is Avalanche’s Binary Byzantine Agreement algorithm, called Snowball. As long as modifications allow a DAG to be constructed later on, this simplifies the design significantly. The DAG stays the same in principle: it supports confidence, but the core algorithm can be modeled without.
 
 The concept of the Snowball algorithm is relatively simple. Following is a simplified description (lacking some details, but giving an overview). For further details, please refer to the [Avalanche paper](https://assets.website-files.com/5d80307810123f5ffbb34d6e/6009805681b416f34dcae012_Avalanche%20Consensus%20Whitepaper.pdf).
@@ -55,7 +55,7 @@ We have identified a shortcoming of the Snowball algorithm that was a perfect st
 
 This document only outlines the specification to Claro. Subsequent analysis work on Claro (both on its performance and how it differentiates with Snowball) will be published shortly and this document will be updated. 
 
-# Claro Algorithm Specification
+## Claro Algorithm Specification
 
 The Claro consensus algorithm computes a boolean decision on a
 proposition via a set of distributed computational nodes.  Claro is
@@ -63,7 +63,7 @@ a leaderless, probabilistic, binary consensus algorithm with fast
 finality that provides good reliability for network and Byzantine
 fault tolerance.
 
-## Algorithmic concept
+### Algorithmic concept
 Claro is an evolution of the Snowball Byzantine Binary Agreement (BBA) algorithm, in which we tackle specifically the perceived weakness described above. The main focus is going to be the counter and the triggering of the reset. Following, we elaborate the different modifications and features that have been added to the reference algorithm:
 
 1. Instead of allowing the latest evidence to change the opinion completely, we take into account all accumulated evidence, to reduce the impact of high variability when there is already a large amount of evidence collected.
@@ -86,7 +86,7 @@ Intuitively, we are looking for a function of evidence, **`w`**, call it **`c`**
 
 The paper describes also a set of operations for the evidence/confidence pairs, so that different sources of knowledge could be combined. However, we leave here the suggestion of a possible research line in the future combining an algebra of evidence/confidence pairs with swarm-propagation algorithm like the one described in [this paper](http://replicated.cc/files/schmebulock.pdf).
 
-### Initial opinion
+#### Initial opinion
 A proposal is formulated to which consensus of truth or falsity is
 desired.  Each node that participates starts the protocol with an
 opinion on the proposal, represented in the sequel as `NO`, `NONE`,
@@ -121,7 +121,7 @@ The algorithm is divided into 4 phases:
 4. Opinion and Decision
 
 <!-- NOTE from CP: not sure this fits, commenting for now -->
-<!-- ### Proposal Identification
+<!-- #### Proposal Identification
 
 The node has a semantics and serialization of the proposal, of which
 it sets an initial opinion:
@@ -139,7 +139,7 @@ proposal, it enters a quiescent state in which it optionally discards
 all information gathered during the query process retaining only the
 final opinion on the truth of the proposal. -->
 
-### Setup Parameters
+#### Setup Parameters
 
 The node initializes the following integer ratios as constants:
 ```
@@ -198,7 +198,7 @@ round
 ```
 
 
-###  Phase One: Query 
+####  Phase One: Query 
 
 A node selects `k` nodes randomly from the complete pool of peers in the
 network. This query is can optionally be weighted, so the probability
@@ -250,7 +250,7 @@ values:
     positive_votes 
       <-- |YES votes received from the query| 
     
-### Phase Two: Computation
+#### Phase Two: Computation
 When the query returns, three ratios are used later on to compute the
 transition function and the opinion forming. Confidence encapsulates
 the notion of how much we know (as a node) in relation to how much we
@@ -295,7 +295,7 @@ in the query round through the following algorithm:
     alpha 
       <-- doubt * ( 1 - confidence ) + certainty * confidence 
     
-### Phase Three: Computation
+#### Phase Three: Computation
 In order to eliminate the need for a step function (a conditional in
 the code), we introduce a transition function from one regime to the
 other. Our interest in removing the step function is twofold:
@@ -367,7 +367,7 @@ up to the limit of `k_max_multiplier_power` query size increases.
     THEN 
        k <-- k * k_multiplier
 
-###  Decision 
+####  Decision 
 The next step is a simple one: change our opinion if the threshold
 *`alpha`* is reached. This needs to be done separately for the `YES/NO`
 decision, checking both boundaries. The last step is then to *`decide`*
@@ -406,7 +406,7 @@ Thus, after the decision phase, either a decision has been finalized
 and the local node becomes quiescent never initiating a new query, or
 it initiates a [new query](#query).
 
-### Termination
+#### Termination
 
 A local round of Claro terminates in one of the following
 execution model considerations:
@@ -421,13 +421,13 @@ execution model considerations:
 3.  The number of `rounds` executed would be greater than
     `max_rounds`. 
     
-#### Quiescence
+##### Quiescence
 
 After a local node has finalized an `opinion` into a `decision`, it enters a quiescent
 state whereby it never solicits new votes on the proposal.  The local
 node MUST reply with the currently finalized `decision`.
 
-#### Clock
+##### Clock
 
 The algorithm only requires that nodes have computed the drift of
 observation of the passage of local time, not that that they have
@@ -435,9 +435,9 @@ coordinated an absolute time with their peers.  For an implementation
 of a phase locked-loop feedback to measure local clock drift see
 [NTP](https://www.rfc-editor.org/rfc/rfc5905.html).
 
-## Further points
+### Further points
 
-### Node receives information during round
+#### Node receives information during round
 In the query step, the node is envisioned as packing information into
 the query to cut down on the communication overhead a query to each of
 this `k` nodes containing the node's own current opinion on the
@@ -447,19 +447,19 @@ possible use may be to count unsolicited votes towards a currently
 active round, and discard the information if the node is in a
 quiescent state.
 
-#### Problems with Weighting Node Value of Opinions
+##### Problems with Weighting Node Value of Opinions
 If the view of other nodes is incomplete, then the sum of the optional
 weighting will not be a probability distribution normalized to 1.
 
 The current algorithm doesn't describe how the initial opinions are formed.
 
-# Implementation status
+## Implementation status
 The following implementations have been created for various testing and simulation purposes:
 - [Rust](https://github.com/logos-co/consensus-research)
 - [Python](#) - FILL THIS IN WITH NEWLY CREATED REPO
 - [Common Lisp](#) - FILL THIS IN WITH NEWLY CREATED REPO
 
-# Wire Protocol 
+## Wire Protocol 
 
 For interoperability we present a wire protocol semantics by requiring
 the validity of the following statements expressed in Notation3 (aka
@@ -506,7 +506,7 @@ One of the strings "YES" "NO" or "NONE".
 Nodes are advised to use Waku messages to include their own
 metadata in serializations as needed.
 
-## Syntax
+### Syntax
 
 The semantic description presented above can be reliably round-tripped
 through a suitable serialization mechanism.  JSON-LD provides a
@@ -524,25 +524,25 @@ When represented via integers, such as choosing
 the parity summations across network invariants often become easier to
 manipulate.
 
-# Security Considerations
+## Security Considerations
 
 
-## Privacy
+### Privacy
 
 In practice, each honest node gossips its current opinion which
 reduces the number of messages that need to be gossiped for a given
 proposal.  The resulting impact on the privacy of the node's opinion
 is not currently analyzed.
 
-## Security with respect to various Adversarial Models 
+### Security with respect to various Adversarial Models 
 
 Adversarial models have been tested for which the values for current
 parameters of Claro have been tuned.  Exposition of the
 justification of this tuning need to be completed.
 
-### Local Strategies
+#### Local Strategies
 
-#### Random Adversaries
+##### Random Adversaries
 
 A random adversary optionally chooses to respond to all queries with a
 random decision.  Note that this adversary may be in some sense
@@ -550,26 +550,26 @@ Byzantine but not malicious.  The random adversary also models some
 software defects involved in not "understanding" how to derive a truth
 value for a given proposition.
 
-#### Infantile Adversary
+##### Infantile Adversary
 
 Like a petulant child, an infantile adversary responds with the
 opposite vote of the honest majority on an opinion.
 
-### Omniscient Adversaries
+#### Omniscient Adversaries
 
 Omniscient adversaries have somehow gained an "unfair" participation in
 consensus by being able to control `f` of `N` nodes with a out-of-band
 "supra-liminal" coordination mechanism.  Such adversaries use this
 coordinated behavior to delay or sway honest majority consensus.
 
-#### Passive Gossip Adversary
+##### Passive Gossip Adversary
 
 The passive network omniscient adversary is fully aware at all times
 of the network state. Such an adversary can always chose to vote in
 the most efficient way to block the distributed consensus from
 finalizing.
 
-#### Active Gossip Adversary
+##### Active Gossip Adversary
 
 An omniscient gossip adversary somehow not only controls `f` of `N`
 nodes, but has also has corrupted communications between nodes such
@@ -579,7 +579,7 @@ decisions to ones favorable to itself.  This adversary will, of
 course, choose to participate in an honest manner until defecting is
 most advantageous.
 
-# Future Directions
+## Future Directions
 
 Although we have proposed a normative description of the
 implementation of the underlying binary consensus algorithm (Claro),
@@ -596,7 +596,7 @@ presupposition has some justification.  We can envision a need for
 tooling abstraction that allow one to just program the DAG itself, as
 they should be of stable interest no matter if Claro isn't. 
 
-# Informative References
+## Informative References
 
 0. [Logos](<https://logos.co/>)
 
@@ -621,7 +621,7 @@ they should be of stable interest no matter if Claro isn't.
 
 9. [ntp](<https://www.ntp.org/downloads.html>)
 
-## Normative References
+### Normative References
 
 0. [Claro](<https://rdf.logos.co/protocol/Claro/1/0/0/raw>)
 

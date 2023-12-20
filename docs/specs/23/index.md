@@ -151,12 +151,12 @@ For example:
 /waku/1/0x007f80ff/rfc26
 ```
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via
 [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 * [10/WAKU2 spec](/spec/10)
 * [11/WAKU2-RELAY](/spec/11)

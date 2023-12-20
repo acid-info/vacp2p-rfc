@@ -10,7 +10,7 @@ editor: Daniel Kaiser <danielkaiser@status.im>
 contributors:
 ---
 
-# Abstract
+## Abstract
 
 This document specifies a simple request-response peer exchange protocol.
 Responders send information about a requested number of peers.
@@ -18,7 +18,7 @@ The main purpose of this protocol is providing resource restricted devices with 
 
 **Protocol identifier**: /vac/waku/peer-exchange/2.0.0-alpha1
 
-# Background and Motivation
+## Background and Motivation
 
 It may not be feasible on resource restricted devices to take part in distributed random sampling ambient peer discovery protocols such as [33/WAKU2-DISCV5](/spec/33/).
 The Waku peer discovery protocol specified in this document allows resource restricted devices to request a list of peers from a service node.
@@ -30,7 +30,7 @@ Heavily used static nodes also add a centralized element. Downtime of such a nod
 However, the resource efficiency of this protocol comes at an anonymity cost, which is explained in the [Security/Privacy Considerations](#securityprivacy-considerations) section.
 This protocol SHOULD only be used if [33/WAKU2-DISCV5](/spec/33/) is infeasible.
 
-# Theory and Protocol Semantics
+## Theory and Protocol Semantics
 
 The peer exchange protocol specified in this document is a simple request-response protocol.
 As Figure 1 illustrates, the requesting node sends a request to a peer, which acts as the responder.
@@ -60,7 +60,7 @@ While any node could technically act as a requester, using the peer exchange pro
 * reducing [anonymity](#securityprivacy-considerations)
 * causing load on responder nodes
 
-# Wire Format Specification
+## Wire Format Specification
 
 ```protobuf
 syntax = "proto3";
@@ -90,13 +90,13 @@ Requesters send a `PeerExchangeQuery` to a peer.
 Responders SHOULD include a maximum of `num_peers` `PeerInfo` instances into a response.
 Responders send a `PeerExchangeResponse` to requesters containing a list of `PeerInfo` instances, which in turn hold an ENR.
 
-# Implementation Suggestions
+## Implementation Suggestions
 
-## Discovery Interface
+### Discovery Interface
 
 Implementations can implement the libp2p discovery interface (e.g. [nim](https://github.com/status-im/nim-libp2p/issues/140), [javascript](https://github.com/libp2p/js-libp2p-interfaces/tree/master/packages/interface-peer-discovery)).
 
-## Exchange Peer Cache Size
+### Exchange Peer Cache Size
 
 The size of the (optional) exchange peer cache discussed in [Theory and Protocol Semantics](#theory-and-protocol-semantics)
 depends on the average number of requested peers, which is expected to be the outbound degree of the underlying
@@ -112,12 +112,12 @@ it is recommended to increase the cache size to at least a tenth of that number.
 We will investigate peer exchange cache sizes and refresh strategies,
 and provide suggestions based on that in future versions (draft, stable) of this document.
 
-# Security/Privacy/Anonymity Considerations
+## Security/Privacy/Anonymity Considerations
 
 The peer exchange protocol specified in this document comes with anonymity and security implications.
 We differentiate these implications into the requester and responder side, respectively.
 
-## Requester
+### Requester
 
 With a simple peer exchange protocol, the requester is inherently susceptible to both *neighbourhood surveillance* and *controlled neighbourhood* attacks.
 
@@ -132,7 +132,7 @@ More on these attacks may be found in our [research log article](https://vac.dev
 
 As a weak mitigation the requester MAY ask several peers and select a subset of the returned peers.
 
-## Responder
+### Responder
 
 Responders that answer with active mesh peers are more vulnerable to a *neighbourhood surveillance* attack.
 Responding with the set of active mesh peers allows a malicious requester to get into the required position more easily.
@@ -147,7 +147,7 @@ As a mitigation, responders MAY feature a `seen cache` for requests and only ans
 The exchange-peer cache discussed in [Theory and Protocol Semantics Section](#theory-and-protocol-semantics) also provides mitigation.
 Still, frequent queries can tigger the refresh cycle more often. The `seen cache` MAY be used in conjunction to provide additional mitigation.
 
-## Further Considerations
+### Further Considerations
 
 The response field contains ENRs as specified in [31/WAKU2-ENR](/spec/31/).
 While ENRs contain signatures, they do not violate the [Waku relay no-sign policy](/spec/11/#signature-policy)),
@@ -156,11 +156,11 @@ However, there might still be some form of leakage:
 ENRs could be used to track peers and facilitate linking attacks.
 We will investigate this further in our Waku anonymity analysis.
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 * [33/WAKU2-DISCV5](/spec/33/)
 * [31/WAKU2-ENR](/spec/31/)

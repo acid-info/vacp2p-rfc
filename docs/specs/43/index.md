@@ -10,13 +10,13 @@ editor: Giuseppe <giuseppe@status.im>
 contributors:
 ---
 
-# Abstract
+## Abstract
 
 In this document we describe a compound protocol 
 for enabling two devices to mutually authenticate 
 and securely exchange (arbitrary) information over the Waku network. 
 
-# Background / Rationale / Motivation
+## Background / Rationale / Motivation
 
 In order to implement multi-device communications using one of the Noise session management mechanisms proposed in [37/WAKU2-NOISE-SESSIONS](https://rfc.vac.dev/spec/37/), 
 we require a protocol to securely exchange (cryptographic) information between 2 or more devices possessed by a user.
@@ -30,9 +30,9 @@ The protocol we propose consists of two main subprotocols or *phases*:
 - [Device Pairing](#Device-Pairing): two phisically close devices initialize the *pairing* by exchanging a QR code out-of-band. The devices then exchange and authenticate their respective long-term device ID static key by exchanging handshake messages over the Waku network;
 - [Secure Transfer](#Secure-Transfer): the devices securely exchange information in encrypted form using key material obtained during a successful pairing phase. The communication will happen over the Waku network, hence the devices do not need to be phisically close in this phase.
 
-# Theory / Semantics
+## Theory / Semantics
 
-## Device Pairing
+### Device Pairing
 
 In the pairing phase, device `B` requests to be paired to a device `A`. 
 Once the two devices are paired, the devices will be mutually authenticated 
@@ -48,13 +48,13 @@ This protocol is designed in order to achieve two main security objectives:
 - resistance to Man-in-the-Middle attacks;
 - provide network anonymity on devices' static keys, i.e. only paired devices will learn each other static key.
 
-### Employed Cryptographic Primitives
+#### Employed Cryptographic Primitives
 
 - `H`: the underlying cryptographically-secure hash function, e.g. SHA-256;
 - `HKDF`: the key derivation function (based on `H`);
 - `Curve25519`: the underlying elliptic curve for Diffie-Hellman (DH) operations.
 
-### The `WakuPairing` Noise Handshake
+#### The `WakuPairing` Noise Handshake
 
 The devices execute a custom handshake derived from `XX`, 
 where they mutually exchange and authenticate their respective device static key 
@@ -77,7 +77,7 @@ d.   -> sA, sAeB, sAsB  {s}
 {}: payload,    []: user interaction
 ```
 
-### Protocol Flow
+#### Protocol Flow
 
 1. The device `B` exposes through a QR code a [base64 (url safe)](https://datatracker.ietf.org/doc/html/rfc4648#section-5) serialization of:
     - An ephemeral public key `eB`;
@@ -141,7 +141,7 @@ If not, the protocol is aborted.
     - Computes `H(sA||s)` and checks if this value corresponds to the commitment obtained in step 3. If not, the protocol is aborted.
     - Calls [Split()](http://www.noiseprotocol.org/noise.html#the-symmetricstate-object) and obtains two cipher states to encrypt inbound and outbound messages.
 
-### The `WakuPairing` for Devices without a Camera
+#### The `WakuPairing` for Devices without a Camera
 
 In the above pairing handshake, the QR is by default exposed by device `B` and not by `A` 
 because in most use-cases we foresee, the secure transfer phase would consist in 
@@ -168,7 +168,7 @@ d.   -> sA, sAeB, sAsB  {s}
 {}: payload,    []: user interaction
 ```
 
-# Secure Transfer
+## Secure Transfer
 
 The pairing phase is designed to be application-agnostic 
 and should be flexible enough to mutually authenticate 
@@ -180,9 +180,9 @@ Once the handshake is concluded,
 If stronger security guarantees are required, 
 some [additional tweaks](#Implementation-Suggestions) are possible.
 
-# Implementation Suggestions
+## Implementation Suggestions
 
-## Timebox QR exposure
+### Timebox QR exposure
 
 We suggest to timebox the exposure of each pairing QR code to few seconds, e.g. 30.
 After this time limit, a QR code containing a new ephemeral key, random static key commitment and message nametag (content topic parameters could remain the same) 
@@ -215,7 +215,7 @@ We stress once more, that such attack requires the compromise of an ephemeral ke
 and that device `A` will in any case detect a mismatch and abort the pairing, 
 regardless of the fact that the QR timeboxing mitigation is implemented or not.
 
-## Randomized Rekey
+### Randomized Rekey
 
 The Noise Protocol framework supports [`Rekey()`](http://www.noiseprotocol.org/noise.html#rekey) 
 in order to update encryption keys *"so that a compromise of cipherstate keys will not decrypt older* \[exchanged\] *messages"*. 
@@ -243,7 +243,7 @@ TransferPhase:
 {}: payload
 ```
 
-## Messages Nametag Derivation
+### Messages Nametag Derivation
 
 To reduce metadata leakages and increase devices's anonymity over the p2p network, 
 [35/WAKU2-NOISE](https://rfc.vac.dev/spec/37/#session-states) suggests to use some common secrets `mntsInbound, mntsOutbound` (e.g. `mntsInbound, mntsOutbound = HKDF(h)` 
@@ -275,9 +275,9 @@ In this way, an attacker would be unable to craft an authenticated Waku message
 even in case the currently used symmetric encryption key is compromised, 
 unless `mntsInbound`, `mntsOutbound` or the `messageNametag` buffer lists were compromised too.
 
-# Security/Privacy Considerations
+## Security/Privacy Considerations
 
-### Assumptions
+#### Assumptions
 
 - The attacker is active, i.e. can interact with both devices `A` and `B` by sending messages over `contentTopic`.
 
@@ -287,7 +287,7 @@ unless `mntsInbound`, `mntsOutbound` or the `messageNametag` buffer lists were c
 
 - As common for Noise, we assume that ephemeral keys cannot be compromised, while static keys might be later compromised. However, we enforce in the pairing phase extra security mechanisms (i.e. use of commitments for static keys) that will prevent some attacks possible when ephemeral keys are weak or get compromised.
  
-### Rationale
+#### Rationale
 
 - The device `B` exposes a commitment to its static key `sB` because:
     - it can commit to its static key before the authentication code is confirmed without revealing it.
@@ -314,9 +314,9 @@ unless `mntsInbound`, `mntsOutbound` or the `messageNametag` buffer lists were c
 - Device `A` opens a commitment to its static key at message `d.` because:
     - if device `B` doesn't abort the pairing, device `A` acknowledges that device `B` correctly received his static key `sA`, since `s` was encrypted under an encryption key derived from the static keys `sA` and `sB` and the genuine (due to the previous `authcode` verification) ephemeral keys `eA` and `eB`.
 
-# Application to Noise Sessions
+## Application to Noise Sessions
 
-## The N11M session management mechanism
+### The N11M session management mechanism
 
 In the [`N11M` session management mechanism](https://rfc.vac.dev/spec/37/#the-n11m-session-management-mechanism), 
 one of Alice's devices is already communicating with one of Bob's devices within an active Noise session, 
@@ -344,17 +344,17 @@ In order to do so she can:
 - securely transfer within such session the 176 bytes serializing the active session with Bob;
 - manually instantiate in `B` a Noise session with Bob from the received session serialization.
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
-## Normative
+### Normative
 - [35/WAKU2-NOISE](https://rfc.vac.dev/spec/37/#session-states)
 - [37/WAKU2-NOISE-SESSIONS](https://rfc.vac.dev/spec/37/)
 
-## Informative
+### Informative
 - [26/WAKU2-PAYLOAD](https://rfc.vac.dev/spec/35/#abnf)
 - [The Double-Ratchet Algorithm](https://signal.org/docs/specifications/doubleratchet/)
 - [The Noise Protocol Framework specifications](http://www.noiseprotocol.org/noise.html)

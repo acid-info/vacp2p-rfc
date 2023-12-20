@@ -9,11 +9,11 @@ editor: Daniel Kaiser <danielkaiser@status.im>
 contributors:
 ---
 
-# Abstract
+## Abstract
 
 This document lists adversarial models and attack-based threats relevant in the context of Waku v2.
 
-# Motivation and Background
+## Motivation and Background
 
 Future versions of this document will serve as a comprehensive list of adversarial models and attack based threats relevant for [Waku v2](/spec/10/).
 The main purpose of this document is being a linkable resource for specifications that address protection as well as mitigation mechanisms within the listed models.
@@ -27,11 +27,11 @@ Note: This document adds to the adversarial models and threat list discussed in 
 It does not cover analysis of Waku, as the research log post does.
 Future versions of this document will extend the adversarial models and threat list.
 
-# Informal Definitions: Security, Privacy, and Anonymity
+## Informal Definitions: Security, Privacy, and Anonymity
 
 The concepts of security, privacy, and anonymity are linked and have quite a bit of overlap.
 
-## Security
+### Security
 
 Of the three, [Security](https://en.wikipedia.org/wiki/Information_security) has the clearest agreed upon definition,
 at least regarding its key concepts: *confidentiality*, *integrity*, and *availability*.
@@ -43,7 +43,7 @@ at least regarding its key concepts: *confidentiality*, *integrity*, and *availa
 While these are the key concepts, the definition of information security has been extended over time including further concepts,
 e.g. [authentication](https://en.wikipedia.org/wiki/Authentication) and [non-repudiation](https://en.wikipedia.org/wiki/Non-repudiation).
 
-## Privacy
+### Privacy
 
 Privacy allows users to choose which data and information
 
@@ -62,7 +62,7 @@ While security is abstract itself (its properties can be realized in various way
 Privacy typically does not use integrity and availability.
 An adversary who has no access to the private data, because the message has been encrypted, could still alter the message.
 
-## Anonymity
+### Anonymity
 
 Privacy and anonymity are closely linked.
 Both the identity of a user and data that allows inferring a user's identity should be part of the privacy policy.
@@ -72,19 +72,19 @@ We define anonymity as *unlinkablity of users' identities and their shared data 
 
 We subdivide anonymity into *receiver anonymity* and *sender anonymity*.
 
-### Receiver Anonymity
+#### Receiver Anonymity
 
 We define receiver anonymity as *unlinkability of users' identities and the data they receive and/or related actions*.
 Because each [Waku message](/spec/14/) is associated with a content topic, and each receiver is interested in messages with specific content topics,
 receiver anonymity in the context of Waku corresponds to *subscriber-topic unlinkability*.
 An example for the "action" part of our receiver anonymity definition is subscribing to a specific topic.
 
-### Sender Anonymity
+#### Sender Anonymity
 
 We define sender anonymity as *unlinkability of users' identities and the data they send and/or related actions*.
 Because the data in the context of Waku is Waku messages, sender anonymity corresponds to *sender-message unlinkability*.
 
-## Anonymity Trilemma
+### Anonymity Trilemma
 
 [The Anonymity trilemma](https://freedom.cs.purdue.edu/projects/trilemma.html) states that only two out of *strong anonymity*, *low bandwidth*, and *low latency* can be guaranteed in the *global attacker* model.
 Waku's goal, being a modular set of protocols, is to offer any combination of two out of these three properties, as well as blends.
@@ -94,7 +94,7 @@ The more messages there are, and the more randomly distributed they are, the bet
 So, incentivising users to use the protocol, for instance by lowering entry barriers, helps protecting the anonymity of all users.
 The frequency/patterns factor is also related to [k-anonymity](https://en.wikipedia.org/wiki/K-anonymity).
 
-## Censorship Resistance
+### Censorship Resistance
 
 Another security related property that Waku aims to offer is censorship resistance.
 Censorship resistance guarantees that users can participate even if an attacker tries to deny them access.
@@ -104,7 +104,7 @@ even if an attacker tries to prevent them from disseminating messages or tries t
 
 An example for a censorship resistance technique is Tor's [Pluggable Transports](https://www.pluggabletransports.info/about/).
 
-# Adversarial Models
+## Adversarial Models
 
 The following lists various attacker types with varying degrees of power.
 The more power an attacker has, the more difficult it is to gain the respective attacker position.
@@ -117,7 +117,7 @@ We also distinguish between internal and external attackers.
 Since in permissionless protocols it is easy to obtain an internal position,
 in practice attackers are expected to mount combined attacks that leverage both internal and external attacks.
 
-## Internal
+### Internal
 
 In the passive variant, an internal attacker behaves like an honest node towards peers.
 The passive internal attacker has the same access rights as any honest node.
@@ -125,11 +125,11 @@ In the active variant, an internal attacker can additionally drop, inject, and a
 With respect to Waku relay, for example, an internal attacker participates in the same pubsub topic as its victims,
 and can read messages related to that topic.
 
-### Single Node
+#### Single Node
 
 This attacker controls a single node.
 
-### Multi Node
+#### Multi Node
 
 This attacker controls a fixed number of nodes (not scaling with the total number of nodes in the network).
 The multi node position can be achieved by setting up multiple nodes.
@@ -139,24 +139,24 @@ A countermeasure is for nodes to only accept libp2p gossipsub graft requests fro
 
 Nodes controlled by the attacker can efficiently communicate out-of-band to coordinate.
 
-### Scaling Multi Node
+#### Scaling Multi Node
 
 This attacker controls a number of nodes that scales linearly with the number of nodes in the network.
 The attacker controls $p%$ of all nodes in the network.
 
 Nodes controlled by the attacker can efficiently communicate out-of-band to coordinate.
 
-## External
+### External
 
 An external attacker can only see encrypted traffic.
 Waku protocols are protected by a secure channel set up with [Noise](/spec/35/).
 
-### Local
+#### Local
 
 A local attacker has access to communication links in a local network segment.
 This could be a rogue access point (with routing capability).
 
-### AS
+#### AS
 
 An AS attacker controls a single AS (autonomous system).
 A passive AS attacker can listen to traffic on arbitrary links within the AS.
@@ -166,7 +166,7 @@ In practice, a malicious ISP would be considered as an AS attacker.
 A malicious ISP could also easily setup a set of nodes at specific points in the network,
 gaining internal attack power similar to a strong *multi node* or even *scaling multi node* attacker.
 
-### Global (On-Net)
+#### Global (On-Net)
 
 A global (on-net) attacker has complete overview over the whole network.
 A passive global attacker can listen to traffic on all links,
@@ -175,7 +175,7 @@ This basically corresponds to the [Dolev-Yao model](https://en.wikipedia.org/wik
 
 An entity with this power would, in practice, also have the power of the internal *scaling multi node* attacker.
 
-# Attack-based Threats
+## Attack-based Threats
 
 The following lists various attacks against [Waku v2](/spec/10/) protocols.
 If not specifically mentioned, the attacks refer to [Waku relay](/spec/11) and the underlying [libp2p GossipSub](https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/README.md).
@@ -187,7 +187,7 @@ Note: This list is work in progress.
 We will either expand this list adding more attacks in future versions of this document,
 or remove it and point to the "Security Considerations" sections of respective RFCs.
 
-## Prerequisite: Get a Specific Position in the Network
+### Prerequisite: Get a Specific Position in the Network
 
 Some attacks require the attacker node(s) to be in a specific position in the network.
 In most cases, this corresponds to trying to get into the mesh peer list for the desired pubsub topic of the victim node.
@@ -199,7 +199,7 @@ This only requires the attacker to know the gossipsub multiaddress of the victim
 A *scaling multi node* attacker can leverage DHT based discovery systems to boost the probability of malicious nodes being returned,
 which in turn significantly increases the probability of attacker nodes ending up in the peer lists of victim nodes.
 
-## Sender Deanonymization
+### Sender Deanonymization
 
 This section lists attacks that aim at deanonymizing a message sender.
 
@@ -211,7 +211,7 @@ Note: The currently listed attacks are against libp2p in general.
 The [data field of Waku v2 relay](/spec/11/#message-fields) must be a [Waku v2 message](/spec/14/).
 The attacks listed in the following do not leverage that fact.
 
-### Replay Attack
+#### Replay Attack
 
 In a replay attack, the attacker replays a valid message it received.
 
@@ -221,13 +221,13 @@ feature a `seen` cache, and only relay messages they have not seen before.
 
 Further, replay attacks will be punished by [RLN Relay](/spec/17/).
 
-### Observing Messages
+#### Observing Messages
 
 If Waku relay was not protected with Noise, the AS attacker could simply check for messages leaving $v$ which have not been relayed to $v$.
 These are the messages sent by $v$.
 Waku relay protects against this attack by employing secure channels setup using Noise.
 
-### Neighbourhood Surveillance
+#### Neighbourhood Surveillance
 
 This attack can be performed by a single node attacker that is connected to all peers of the victim node $v$ with respect to a specific topic mesh. 
 The attacker also has to be connected to $v$.
@@ -247,11 +247,11 @@ Messages $m_v$ always have a hop-count of 1 on the path from $v$ to the attacker
 Messages $m_y$ might have the same hop-count on the path from $v$ as well as on other paths.
 Further techniques that are part of the *mass deanonymization* category, such as [bayesian analysis](#bayesian-analysis), can be used here as well.
 
-### Controlled Neighbourhood
+#### Controlled Neighbourhood
 
 If a multi node attacker manages to control all peers of the victim node, it can trivially tell which messages originated from $v$.
 
-### Correlation
+#### Correlation
 
 Monitoring all traffic (in an AS or globally), allows the attacker to identify traffic correlated with messages originating from $v$.
 This (alone) does not allow an external attacker to learn which message $v$ sent, but it allows identifying the respective traffic propagating through the network.
@@ -259,7 +259,7 @@ The more traffic in the network, the lower the success rate of this attack.
 
 Combined with just a few nodes controlled by the attacker, the actual message associated with the correlated traffic can eventually be identified.
 
-## Mass Deanonymization
+### Mass Deanonymization
 
 While attacks in the *sender deanonymization* category target a set of either specific or arbitrary users,
 attacks in the *mass deanonymization* category aim at deanonymizing (parts of) the whole network.
@@ -267,7 +267,7 @@ Mass deanonymization attacks do not necessarily link messages to senders.
 They might only reduce the anonymity set in which senders hide,
 or infer information about the network topology.
 
-### Graph Learning
+#### Graph Learning
 
 Graph learning attacks are a prerequisite for some mass deanonymization attacks,
 in which the attacker learns the overlay network topology.
@@ -276,23 +276,23 @@ Graph learning attacks require a *scaling multinode* attacker
 For gossipsub this means an attacker learns the topic mesh for specific pubsub topics.
 [Dandelion++](https://arxiv.org/abs/1805.11060) describes ways to perform this attack.
 
-### Bayesian Analysis
+#### Bayesian Analysis
 
 Bayesian analysis allows attackers to assign each node in the network a likelihood of having sent (originated) a specific message.
 Bayesian analysis for mass deanonymization is detailed in [On the Anonymity of Peer-To-Peer Network Anonymity Schemes Used by Cryptocurrencies](https://arxiv.org/pdf/2201.11860).
 It requires a *scaling node* attacker as well as knowledge of the network topology,
 which can be learned via *graph learning* attacks.
 
-## Denial of Service (DoS)
+### Denial of Service (DoS)
 
-### Flooding
+#### Flooding
 
 In a flooding attack, attackers flood the network with bogus messages.
 
 Waku employs [RLN Relay](/spec/17/) as the main countermeasure to flooding.
 [SWAP](/spec/18/) also helps mitigating DoS attacks.
 
-### Black Hole (internal)
+#### Black Hole (internal)
 
 In a black hole attack, the attacker does not relay messages it is supposed to relay.
 Analogous to a black hole, attacker nodes do not allow messages to leave once they entered.
@@ -304,7 +304,7 @@ The effects of this attack are especially severe in conjunction with deanonymiza
 such as [Waku Dandelion](/spec/44/).
 ([Waku Dandelion](/spec/44/) also discusses mitigation techniques compensating the amplified black hole potential.)
 
-### Traffic Filtering (external)
+#### Traffic Filtering (external)
 
 A local attacker can filter and drop all Waku traffic within its controlled network segment.
 An AS attacker can filter and drop all Waku traffic within its authority, while a global attacker can censor the whole network.
@@ -313,11 +313,11 @@ A countermeasure are censorship resistance techniques like [Pluggable Transports
 An entity trying to censor Waku can employ both the *black hole* attack and *traffic filtering*;
 the former is internal while the latter is external.
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 * [10/WAKU2](/spec/10/)
 * [11/WAKU2-RELAY](/spec/11/)

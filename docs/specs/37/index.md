@@ -9,7 +9,7 @@ editor: Giuseppe <giuseppe@status.im>
 contributors: 
 ---
 
-# Introduction
+## Introduction
 
 In [35/WAKU2-NOISE](https://rfc.vac.dev/35/) we defined how Waku messages' payloads can be encrypted using key material derived from key agreements based on the [Noise Protocol Framework](http://www.noiseprotocol.org/noise.html). 
 
@@ -18,7 +18,7 @@ an encryption/decryption session - _or a Noise session_ - would be instantiated.
 
 This post provides an overview on how we can possibly implement and manage one or multiple Noise sessions in Waku.
 
-# Preliminaries
+## Preliminaries
 
 We assume that two users, e.g. Alice and Bob, successfully completed a Noise handshake.
 
@@ -42,7 +42,7 @@ any further encrypted message between Alice and Bob within this session is excha
 where `ct-id = Hash(Hash(session-id))` 
 and `/{application-name}/{application-version}/` identifies the application currently employing [35/WAKU2-NOISE](https://rfc.vac.dev/35/).
 
-# Session states
+## Session states
 
 A Noise session corresponding to a certain `session-id`:
 - is always **active** as long as it is not marked as **stale**. 
@@ -77,7 +77,7 @@ while keeping the Inbound/outbound Cipher States, the content topic derivation m
 In this case, when one party sends **and** receives at least one message, 
 he SHALL publicly mark as stale all Noise sessions relative to messages exchanged before the earlier of these two send/receive events.
 
-# Multi-Device support
+## Multi-Device support
 
 Alice and Bob might possess one or more devices (e.g. laptops, smartphones, etc.) they wish to use to communicate.
 In the following, we assume Alice and Bob to possess $N$ and $M$ devices, respectively.
@@ -87,7 +87,7 @@ messages should be encrypted and decrypted within the Noise session instantiated
 
 This is achieved through two main supported session management mechanisms that we called `N11M` and `NM`, respectively.
 
-## The $N11M$ session management mechanism
+### The $N11M$ session management mechanism
 
 In a $N11M$ setting, each party's device shares the same Noise session information used to encrypt and decrypt messages exchanged with the other party.
 
@@ -121,7 +121,7 @@ where encryption keys are changed every time a new message is exchanged.
 
 This session management mechanism is loosely based on the paper ["Multi-Device for Signal"](https://eprint.iacr.org/2019/1363.pdf).
 
-## The $NM$ session management mechanism
+### The $NM$ session management mechanism
 
 In a $NM$ setting, we require all of $N$ Alice's devices to have an active Noise session with each of Bob's $M$ devices, 
 for a total of $NM$ concurrently active Noise sessions between Alice and Bob.
@@ -150,7 +150,7 @@ the other party SHOULD send a termination message to mark all such Noise session
 
 This session management mechanism is loosely based on [Signal's Sesame Algorithm](https://signal.org/docs/specifications/sesame/).
 
-# References
+## References
 - [13/WAKU2-STORE](https://rfc.vac.dev/spec/13/)
 - [35/WAKU2-NOISE](https://rfc.vac.dev/35/)
 - [The Noise Protocol Framework](http://www.noiseprotocol.org/noise.html)

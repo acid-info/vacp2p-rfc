@@ -9,20 +9,20 @@ editor: Daniel Kaiser <danielkaiser@status.im>
 contributors:
 ---
 
-# Abstract
+## Abstract
 
 This document lists static shard flag index assignments (see [51/WAKU2-RELAY-SHARDING](/spec/51/).
 
-# Background
+## Background
 
 Similar to the [IANA port allocation](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml),
 this document lists static shard index assignments (see [51/WAKU2-RELAY-SHARDING](/spec/51/).
 
-# Assingment Process
+## Assingment Process
 
 > *Note*: Future versions of this document will specify the assignment process.
 
-# List of Cluster Ids
+## List of Cluster Ids
 
 |    index | Protocol/App | Description                         |
 |    ---   | ---          | ---                                 |
@@ -47,11 +47,11 @@ this document lists static shard index assignments (see [51/WAKU2-RELAY-SHARDING
 |     18   |   Status     |                                     |
 
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 * [51/WAKU2-RELAY-SHARDING](/spec/51/)
 * [IANA port allocation](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml)

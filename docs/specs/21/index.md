@@ -13,19 +13,19 @@ contributors:
  Relying on this method,  nodes that have been offline for a time window will be able to fix the gap in their message history when getting back online. 
  Moreover, nodes with lower availability and uptime can leverage this method to reliably provide the store protocol services as a full node.
 
-# Method description 
+## Method description 
  As the first step towards making the `13/WAKU2-STORE` protocol fault-tolerant, we introduce a new type of time-based query through which nodes fetch message history from each other based on their desired time window. 
  This method operates based on the assumption that the querying node knows some other nodes in the store protocol which have been online for that targeted time window.  
 
-# Security Consideration
+## Security Consideration
 
 The main security consideration to take into account while using this method is that a querying node has to reveal its offline time to the queried node. 
 This will gradually result in the extraction of the node's activity pattern which can lead to inference attacks. 
 
-# Wire Specification
+## Wire Specification
 We extend the [HistoryQuery](/spec/13#payloads) protobuf message with two fields of `start_time` and `end_time` to signify the time range to be queried. 
 
-## Payloads
+### Payloads
 
 ```diff
 syntax = "proto3";
@@ -41,7 +41,7 @@ message HistoryQuery {
 
 ```
   
-### HistoryQuery
+#### HistoryQuery
 
 RPC call to query historical messages.
 - `start_time`: this field MAY be filled out to signify the starting point of the queried time window. 
@@ -63,7 +63,7 @@ That is if the original window is [`l`,`r`] then the history query SHOULD be mad
 Note that `HistoryQuery` preserves `AND` operation among the queried attributes. 
 As such,  The `messages` field of the corresponding [`HistoryResponse`](/spec/13#HistoryResponse) MUST contain historical waku messages that satisfy the indicated  `pubsubtopic` AND `contentFilters` AND the time range [`start_time`, `end_time`]. 
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via
 [CC0](https://creativecommons.org/publicdomain/zero/1.0/).

@@ -16,12 +16,12 @@ contributors:
 - Dean Eigenmann <dean@status.im>
 ---
 
-# Abstract
+## Abstract
 
 This specification describes how the Status 1-to-1 chat protocol is implemented on top of the Waku v2 protocol. 
 This protocol can be used to send messages to a single recipient.
 
-# Terminology
+## Terminology
 
 - **Participant**: A participant is a user that is able to send and receive messages.
 - **1-to-1 chat**: A chat between two participants.
@@ -30,13 +30,13 @@ This protocol can be used to send messages to a single recipient.
 - **Group chat**: A chat where multiple select participants can join and read messages.
 - **Group admin**: A participant that is able to add/remove participants from a group chat.
 
-# Background
+## Background
 
 This document describes how 2 peers communicate with each other to send messages in a 1-to-1 chat, with privacy and authenticity guarantees.
 
-# Specification
+## Specification
 
-## Overview
+### Overview
 
 This protocol MAY use any key-exchange mechanism previously discussed -
 
@@ -46,9 +46,9 @@ This protocol MAY use any key-exchange mechanism previously discussed -
 This protocol can provide end-to-end encryption to give peers a strong degree of privacy and security. 
 Public chat messages are publicly readable by anyone since there's no permission model for who is participating in a public chat.
 
-## Flow
+### Flow
 
-### Negotiation of a 1:1 chat
+#### Negotiation of a 1:1 chat
 
 There are two phases in the initial negotiation of a 1:1 chat:
 1. **Identity verification** (e.g., face-to-face contact exchange through QR code, Identicon matching).
@@ -57,11 +57,11 @@ A QR code serves two purposes simultaneously - identity verification and initial
 
 For more information on account generation and trust establishment, see [2/ACCOUNT](https://specs.status.im/spec/2)
 
-### Post Negotiation
+#### Post Negotiation
 
 After the peers have shared their public key material, a 1:1 chat can be established using the methods described in the key-exchange protocols mentioned above.
 
-### Session management
+#### Session management
 
 The 1:1 chat is made robust by having sessions between peers.
 It is handled by the key-exchange protocol used. For example,
@@ -70,7 +70,7 @@ It is handled by the key-exchange protocol used. For example,
 
 2. [35/WAKU2-NOISE](/spec/35/), the session management is described in [37/WAKU2-NOISE-SESSIONS](/spec/37/)
 
-## Negotiation of a 1:1 chat amongst multiple participants (group chat)
+### Negotiation of a 1:1 chat amongst multiple participants (group chat)
 
 A small, private group chat can be constructed by having multiple participants negotiate a 1:1 chat amongst each other.
 Each participant MUST maintain a session with all other participants in the group chat.
@@ -82,11 +82,11 @@ However, this method does not scale as the number of participants increases, for
 
 The above issues are addressed in [56/STATUS-COMMUNITIES](/spec/56/), with other trade-offs.
 
-### Flow
+#### Flow
 
 The following flow describes how a group chat is created and maintained.
 
-#### Membership Update Flow
+##### Membership Update Flow
 
 Membership updates have the following wire format:
 
@@ -145,7 +145,7 @@ message MembershipUpdateEvent {
 <!-- Note: I don't like defining wire formats which are out of the scope of the rfc this way. Should explore alternatives -->
 Note that the definitions for `ChatMessage` and `EmojiReaction` can be found in [chat_message.proto](https://github.com/status-im/status-go/blob/5fd9e93e9c298ed087e6716d857a3951dbfb3c1e/protocol/protobuf/chat_message.proto#L1) and [emoji_reaction.proto](https://github.com/status-im/status-go/blob/5fd9e93e9c298ed087e6716d857a3951dbfb3c1e/protocol/protobuf/emoji_reaction.proto).
 
-##### Chat Created
+###### Chat Created
 
 When creating a group chat, this is the first event that MUST be sent. 
 Any event with a clock value lower than this MUST be discarded. 
@@ -153,26 +153,26 @@ Upon receiving this event a client MUST validate the `chat_id` provided with the
 
 By default, the creator of the group chat is the only group admin.
 
-##### Name Changed
+###### Name Changed
 
 To change the name of the group chat, group admins MUST use a `NAME_CHANGED` event.
 Upon receiving this event a client MUST validate the `chat_id` provided with the updates and MUST ensure the author of the event is an admin of the chat, otherwise the event MUST be ignored. 
 If the event is valid the chat name SHOULD be changed according to the provided message.
 
-##### Members Added
+###### Members Added
 
 To add members to the chat, group admins MUST use a `MEMBERS_ADDED` event. 
 Upon receiving this event a participant MUST validate the `chat_id` provided with the updates and MUST ensure the author of the event is an admin of the chat, otherwise the event MUST be ignored. 
 If the event is valid, a participant MUST update the list of members of the chat who have not joined, adding the members received. 
 
-##### Member Joined
+###### Member Joined
 
 To signal the intent to start receiving messages from a given chat, new participants MUST use a `MEMBER_JOINED` event.
 Upon receiving this event a participant MUST validate the `chat_id` provided with the updates. 
 If the event is valid a participant MUST add the new participant to the list of participants stored locally. 
 Any message sent to the group chat MUST now include the new participant.
 
-##### Member Removed
+###### Member Removed
 
 There are two ways in which a member MAY be removed from a group chat:
 - A member MAY leave the chat by sending a `MEMBER_REMOVED` event, with the `members` field containing their own public key.
@@ -181,36 +181,36 @@ There are two ways in which a member MAY be removed from a group chat:
 Each participant MUST validate the `chat_id` provided with the updates and MUST ensure the author of the event is an admin of the chat, otherwise the event MUST be ignored.
 If the event is valid, a participant MUST update the local list of members accordingly.
 
-##### Admins Added
+###### Admins Added
 
 To promote participants to group admin, group admins MUST use an `ADMINS_ADDED` event.
 Upon receiving this event, a participant MUST validate the `chat_id` provided with the updates, MUST ensure the author of the event is an admin of the chat, otherwise the event MUST be ignored. 
 If the event is valid, a participant MUST update the list of admins of the chat accordingly.
 
-##### Admin Removed
+###### Admin Removed
 
 Group admins MUST NOT be able to remove other group admins.
 An admin MAY remove themselves by sending an `ADMIN_REMOVED` event, with the `members` field containing their own public key.
 Each participant MUST validate the `chat_id` provided with the updates and MUST ensure the author of the event is an admin of the chat, otherwise the event MUST be ignored.
 If the event is valid, a participant MUST update the list of admins of the chat accordingly.
 
-##### Color Changed
+###### Color Changed
 
 To change the text color of the group chat name, group admins MUST use a `COLOR_CHANGED` event.
 
-##### Image Changed
+###### Image Changed
 
 To change the display image of the group chat, group admins MUST use an `IMAGE_CHANGED` event.
 
-# Security Considerations
+## Security Considerations
 
 1. Inherits the security considerations of the key-exchange mechanism used, e.g., [53/WAKU2-X3DH](/spec/53/) or [35/WAKU2-NOISE](/spec/35/)
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 1. [53/WAKU2-X3DH](/spec/53/)
 2. [35/WAKU2-NOISE](/spec/35/)

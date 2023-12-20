@@ -8,12 +8,12 @@ contributors:
 - Lev Soukhanov <0xdeadfae@gmail.com>
 ---
 
-# Abstract
+## Abstract
 
 The protocol specified in this document is an improvement of [32/RLN-V1](/spec/32), being more general construct, that allows to set various limits for an epoch (it's 1 message per epoch in [32/RLN-V1](/spec/32)) while remaining almost as simple as it predecessor. 
 Moreover, it allows to set different rate-limits for different RLN app users based on some public data, e.g. stake or reputation.
 
-# Motivation
+## Motivation
 
 The main goal of this RFC is to generalize [32/RLN-V1](/spec/32) and expand its applications. 
 There are two different subprotocols based on this protocol:
@@ -22,7 +22,7 @@ There are two different subprotocols based on this protocol:
 
 It is important to note that by using a large epoch limit value, users will be able to remain anonymous, because their `internal_nullifiers` will not be repeated until they exceed the limit.
 
-# Flow
+## Flow
 
 As in [32/RLN-V1](/spec/32), the general flow can be described by three steps:
 
@@ -32,19 +32,19 @@ As in [32/RLN-V1](/spec/32), the general flow can be described by three steps:
 
 The two sub-protocols have different flows, and hence are defined separately.
 
-## Important note
+### Important note
 
 All terms and parameters used remain the same as in [32/RLN-V1](/spec/32), more details [here](/spec/32/#technical-overview)
 
-## RLN-Same flow
+### RLN-Same flow
 
-### Registration
+#### Registration
 
 The registration process in the RLN-Same subprotocol does not differ from [32/RLN-V1](/spec/32).
 
-### Signalling
+#### Signalling
 
-#### Proof generation
+##### Proof generation
 
 For proof generation, the user needs to submit the following fields to the circuit:
 
@@ -60,7 +60,7 @@ For proof generation, the user needs to submit the following fields to the circu
 }
 ```
 
-#### Calculating output
+##### Calculating output
 
 The following fields are needed for proof output calculation:
 
@@ -84,9 +84,9 @@ y = a_0 + x * a_1
 internal_nullifier = poseidonHash([a_1])
 ```
 
-## RLN-Diff flow
+### RLN-Diff flow
 
-### Registration
+#### Registration
 
 **id_commitment** in [32/RLN-V1](/spec/32) is equal to `poseidonHash(identity_secret)`. 
 The goal of RLN-Diff is to set different rate-limits for different users. 
@@ -102,9 +102,9 @@ Both methods are correct, and the choice of the method is left to the implemente
 It is recommended to use second method for the reasons already described.
 The following flow description will also be based on the second method.
 
-### Signalling
+#### Signalling
 
-#### Proof generation
+##### Proof generation
 
 For proof generation, the user need to submit the following fields to the circuit:
 
@@ -120,16 +120,16 @@ For proof generation, the user need to submit the following fields to the circui
 }
 ```
 
-#### Calculating output
+##### Calculating output
 
 The Output is calculated in the same way as the RLN-Same sub-protocol.
 
-## Verification and slashing
+### Verification and slashing
 
 Verification and slashing in both subprotocols remain the same as in [32/RLN-V1](/spec/32).
 The only difference that may arise is the `message_limit` check in RLN-Same, since it is now a public input of the Circuit.
 
-## ZK Circuits specification
+### ZK Circuits specification
 
 The design of the [32/RLN-V1](/spec/32) circuits is different from the circuits of this protocol. 
 RLN-v2 requires additional algebraic constraints.
@@ -145,9 +145,9 @@ The main difference of the protocol is that instead of a new polynomial (a new v
 The user assigns an identifier to each message; the main requirement is that this identifier be in the range from 1 to `limit`. 
 This is proven using range constraints.
 
-### RLN-Same circuit
+#### RLN-Same circuit
 
-#### Circuit parameters
+##### Circuit parameters
 
 **Public Inputs**
 - `x`
@@ -165,11 +165,11 @@ This is proven using range constraints.
 - `root`
 - `internal_nullifier`
 
-### RLN-Diff circuit
+#### RLN-Diff circuit
 
 In the RLN-Diff scheme, instead of the public parameter `message_limit`, a parameter is used that is set for each user during registration (`user_message_limit`); the `message_id` value is compared to it in the same way as it is compared to `message_limit` in the case of RLN-Same.
 
-#### Circuit parameters
+##### Circuit parameters
 
 **Public Inputs**
 - `x`
@@ -187,15 +187,15 @@ In the RLN-Diff scheme, instead of the public parameter `message_limit`, a param
 - `root`
 - `internal_nullifier`
 
-# Appendix A: Security considerations
+## Appendix A: Security considerations
 
 Although there are changes in the circuits, this spec inherits all the security considerations of [32/RLN-V1](/spec/32).
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 - [1] https://zkresear.ch/t/rate-limit-nullifier-v2-circuits/102
 - [2] https://github.com/Rate-Limiting-Nullifier/rln-circuits-v2

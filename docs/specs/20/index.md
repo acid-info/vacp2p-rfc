@@ -25,12 +25,12 @@ In the current state, the protocol has privacy and features [limitations](#limit
 and hence is not fit for production usage.
 We hope this can be an inspiration for developers wishing to build on top of Waku v2.
 
-# Goal
+## Goal
 
 Alice wants to send an encrypted message to Bob, where only Bob can decrypt the message.
 Alice only knows Bob's Ethereum Address.
 
-# Variables
+## Variables
 
 Here are the variables used in the protocol and their definition:
 
@@ -39,7 +39,7 @@ Here are the variables used in the protocol and their definition:
 - `B'` is Bob's Encryption Public Key, for which `b'` is the private key.
 - `M` is the private message that Alice sends to Bob.
 
-# Design Requirements
+## Design Requirements
 
 The proposed protocol MUST adhere to the following design requirements:
 
@@ -52,7 +52,7 @@ The proposed protocol MUST adhere to the following design requirements:
 7. Carole MUST NOT be able to read `M`'s content even if she is storing it or relaying it,
 8. [Waku Message Version 1](/spec/26/) Asymmetric Encryption is used for encryption purposes.
 
-## Limitations
+### Limitations
 
 Alice's details are not included in the message's structure,
 meaning that there is no programmatic way for Bob to reply to Alice
@@ -70,23 +70,23 @@ See the [Status secure transport spec](https://specs.status.im/spec/5) for an ex
 Bob MUST decide to participate in the protocol before Alice can send him a message.
 This is discussed in more in details in [Consideration for a non-interactive/uncoordinated protocol](#consideration-for-a-non-interactiveuncoordinated-protocol)
 
-# The protocol
+## The protocol
 
-## Generate Encryption KeyPair
+### Generate Encryption KeyPair
 
 First, Bob needs to generate a keypair for Encryption purposes.
 
 Bob SHOULD get 32 bytes from a secure random source as Encryption Private Key, `b'`.
 Then Bob can compute the corresponding SECP-256k1 Public Key, `B'`.
 
-# Broadcast Encryption Public Key
+## Broadcast Encryption Public Key
 
 For Alice to encrypt messages for Bob,
 Bob SHOULD broadcast his Encryption Public Key `B'`.
 To prove that the Encryption Public Key `B'` is indeed owned by the owner of Bob's Ethereum Account `B`,
 Bob MUST sign `B'` using `B`.
 
-## Sign Encryption Public Key
+### Sign Encryption Public Key
 
 To prove ownership of the Encryption Public Key,
 Bob must sign it using [EIP-712](https://eips.ethereum.org/EIPS/eip-712) v3,
@@ -126,7 +126,7 @@ const typedData = {
   }
 ```
 
-## Public Key Message
+### Public Key Message
 
 The resulting signature is then included in a `PublicKeyMessage`, where
 
@@ -147,7 +147,7 @@ message PublicKeyMessage {
 This MUST be wrapped in a Waku Message version 0, with the Public Key Broadcast content topic.
 Finally, Bob SHOULD publish the message on Waku v2. 
 
-## Consideration for a non-interactive/uncoordinated protocol
+### Consideration for a non-interactive/uncoordinated protocol
 
 Alice has to get Bob's public Key to send a message to Bob.
 Because an Ethereum Address is part of the hash of the public key's account,
@@ -162,7 +162,7 @@ This means that Bob would need to broadcast his public key at least every 30 day
 
 Below we are reviewing possible solutions to mitigate this "sign up" step.
 
-### Retrieve the public key from the blockchain
+#### Retrieve the public key from the blockchain
 
 If Bob has signed at least one transaction with his account then his Public Key can be extracted from the transaction's ECDSA signature.
 The challenge with this method is that standard Web3 Wallet API does not allow Alice to specifically retrieve all/any transaction sent by Bob.
@@ -190,14 +190,14 @@ This could make sense in an NFT offer scenario:
 Users send offers to any NFT owner,
 NFT owner may decide at some point to participate in the protocol and retrieve previous offers.
 
-### Publishing the public in long term storage
+#### Publishing the public in long term storage
 
 Another improvement would be for Bob not having to re-publish his public key every 30 days or less.
 Similarly to above, if Bob stops publishing his public key then it may be an indication that he does not participate in the protocol anymore.
 
 In any case, the protocol could be modified to store the Public Key in a more permanent storage, such as a dedicated smart contract on the blockchain.
 
-# Send Private Message
+## Send Private Message
 
 Alice MAY monitor the Waku v2 to collect Ethereum Address and Encryption Public Key tuples.
 Alice SHOULD verify that the `signature`s of `PublicKeyMessage`s she receives are valid as per EIP-712.
@@ -210,6 +210,6 @@ as per [26/WAKU-PAYLOAD Asymmetric Encryption specs](/spec/26/#asymmetric).
 
 Alice SHOULD now publish this message on the Private Message content topic.
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).

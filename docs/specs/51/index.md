@@ -10,14 +10,14 @@ contributors:
 - Simon-Pierre Vivier <simvivier@status.im>
 ---
 
-# Abstract
+## Abstract
 
 This document describes ways of sharding the [Waku relay](/spec/11/) topic,
 allowing Waku networks to scale in the number of content topics.
 
 > *Note*: Scaling in the size of a single content topic is out of scope for this document.
 
-# Background and Motivation
+## Background and Motivation
 
 [Unstructured P2P networks](https://en.wikipedia.org/wiki/Peer-to-peer#Unstructured_networks)
 are more robust and resilient against DoS attacks compared to
@@ -33,7 +33,7 @@ This document specifies three pubsub topic sharding methods (with varying degree
 which allow application protocols to scale in the number of content topics.
 This document also covers discovery of topic shards.
 
-# Named Sharding
+## Named Sharding
 
 *Named sharding* offers apps to freely choose pubsub topic names.
 It is RECOMMENDED for App protocols to follow the naming structure detailed in [23/WAKU2-TOPICS](/spec/23/).
@@ -43,7 +43,7 @@ From an app protocol point of view, a subscription to a content topic `waku2/xxx
 
 `subscribe("/waku2/xxx", "/mesh/v1.1.1/xxx")`
 
-# Static Sharding
+## Static Sharding
 
 *Static sharding* offers a set of shards with fixed names.
 Assigning content topics to specific shards is up to app protocols,
@@ -96,7 +96,7 @@ And for shard 43 of the Status app (which has allocated index 16):
 
 `subscribe("/waku2/xxx", 16, 43)`
 
-## Discovery
+### Discovery
 
 Waku v2 supports the discovery of peers within static shards,
 so app protocols do not have to implement their own discovery method.
@@ -121,7 +121,7 @@ Nodes MUST NOT use both index list (`rs`) and bit vector (`rsv`) in a single ENR
 ENRs with both `rs` and `rsv` keys SHOULD be ignored.
 Nodes MAY interpret `rs` in such ENRs, but MUST ignore `rsv`.
 
-### Index List
+#### Index List
 
 | key    | value   |
 |---     |---      |
@@ -141,7 +141,7 @@ Example:
 
 This example node is part of shards `13`, `14`, and `45` in the Status main-net shard cluster (index 16).
 
-### Bit Vector
+#### Bit Vector
 
 | key    | value   |
 |---     |---      |
@@ -164,20 +164,20 @@ The `[...]` in the example indicates 120 `0` bytes.
 This example node is part of shards `13`, `14`, and `45` in the Status main-net shard cluster (index 16).
 (This is just for illustration purposes, a node that is only part of three shards should use the index list method specified above.)
 
-# Automatic Sharding
+## Automatic Sharding
 
 Autosharding selects shards automatically and is the default behavior for shard choice.
 The other choices being static and named sharding as seen in previous sections.
 Shards (pubsub topics) SHOULD be computed from content topics with the procedure below.
 
-### Algorithm
+#### Algorithm
 
 Hash using Sha2-256 the concatenation of
 the content topic `application` field (UTF-8 string of N bytes) and
 the `version` (UTF-8 string of N bytes).
 The shard to use is the modulo of the hash by the number of shards in the network.
 
-### Example
+#### Example
 | Field           | Value  | Hex 
 |---              |---     |---          
 | `application`   | "myapp"| 0x6d79617070
@@ -188,7 +188,7 @@ The shard to use is the modulo of the hash by the number of shards in the networ
 - `0x8e541178adbd8126068c47be6a221d77d64837221893a8e4e53139fb802d4928` MOD `8` equals `0`
 - The shard to use has index 0
 
-## Content Topics Format for Autosharding
+### Content Topics Format for Autosharding
 Content topics MUST follow the format in [23/WAKU2-TOPICS](https://rfc.vac.dev/spec/23/#content-topic-format).
 In addition, a generation prefix MAY be added to content topics.
 When omitted default values are used.
@@ -197,17 +197,17 @@ Generation default value is `0`.
 - The full length format is `/{generation}/{application-name}/{version-of-the-application}/{content-topic-name}/{encoding}`
 - The short length format is `/{application-name}/{version-of-the-application}/{content-topic-name}/{encoding}`
 
-### Example
+#### Example
 
 - Full length `/0/myapp/1/mytopic/cbor`
 - Short length `/myapp/1/mytopic/cbor`
 
-### Generation
+#### Generation
 The generation number monotonously increases and indirectly refers to the total number of shards of the Waku Network.
 
 <!-- Create a new RFC for each generation spec. -->
 
-### Topic Design
+#### Topic Design
 Content topics have 2 purposes: filtering and routing.
 Filtering is done by changing the `{content-topic-name}` field.
 As this part is not hashed, it will not affect routing (shard selection).
@@ -216,9 +216,9 @@ Using multiple content topics with different `{application-name}` field has adva
 It increases the traffic a relay node is subjected to when subscribed to all topics.
 It also allows relay and light nodes to subscribe to a subset of all topics.
 
-## Problems
+### Problems
 
-### Hot Spots
+#### Hot Spots
 
 Hot spots occur (similar to DHTs), when a specific mesh network (shard) becomes responsible for (several) large multicast groups (content topics).
 The opposite problem occurs when a mesh only carries multicast groups with very few participants: this might cause bad connectivity within the mesh.
@@ -227,7 +227,7 @@ The current autosharding method does not solve this problem.
 
 > *Note:* Automatic sharding based on network traffic measurements to avoid hot spots in not part of this specification.
 
-### Discovery
+#### Discovery
 
 For the discovery of automatic shards this document specifies two methods (the second method will be detailed in a future version of this document).
 
@@ -251,22 +251,22 @@ When the new capability discovery is available,
 this document will be updated with a specification of the second discovery method.
 The transition to the second method will be seamless and fully backwards compatible because nodes can still advertise and discover shard memberships in ENRs.
 
-# Security/Privacy Considerations
+## Security/Privacy Considerations
 
 See [45/WAKU2-ADVERSARIAL-MODELS](/spec/45), especially the parts on k-anonymity.
 We will add more on security considerations in future versions of this document.
 
-## Receiver Anonymity
+### Receiver Anonymity
 
 The strength of receiver anonymity, i.e. topic receiver unlinkablity,
 depends on the number of content topics (`k`), as a proxy for the number of peers and messages, that get mapped onto a single pubsub topic (shard).
 For *named* and *static* sharding this responsibility is at the app protocol layer.
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 * [11/WAKU2-RELAY](/spec/11/)
 * [Unstructured P2P network](https://en.wikipedia.org/wiki/Peer-to-peer#Unstructured_networks)

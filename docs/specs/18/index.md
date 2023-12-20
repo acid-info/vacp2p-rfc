@@ -11,7 +11,7 @@ This specification outlines how we do accounting and settlement based on the pro
 
 **Protocol identifier***: `/vac/waku/swap/2.0.0-beta1`
 
-# Motivation
+## Motivation
 
 The Waku network makes up a service network, and some nodes provide a useful service to other nodes. We want to account for that, and when imbalances arise, settle this. The core of this approach has some theoretical backing in game theory, and variants of it have practically been proven to work in systems such as Bittorrent. The specific model use was developed by the Swarm project (previously part of Ethereum), and we re-use contracts that were written for this purpose.
 
@@ -19,7 +19,7 @@ By using a delayed payment mechanism in the form of cheques, a barter-like mecha
 
 Theoretically, nodes providing and using resources over a long, indefinite, period of time can be seen as an iterated form of [Prisoner's Dilemma (PD)](https://en.wikipedia.org/wiki/Prisoner%27s_dilemma). Specifically, and more intuitively, since we have a cost and benefit profile for each provision/usage (of Waku Message's, e.g.), and the pricing can be set such that mutual cooperation is incentivized, this can be analyzed as a form of donations game.
 
-# Game Theory - Iterated prisoner's dilemma / donation game
+## Game Theory - Iterated prisoner's dilemma / donation game
 
 What follows is a sketch of what the game looks like between two nodes. We can look at it as a special case of iterated prisoner's dilemma called a [Donation game](https://en.wikipedia.org/wiki/Prisoner%27s_dilemma#Special_case:_donation_game) where each node can cooperate with some benefit `b` at a personal cost `c`, where `b>c`.
 
@@ -57,7 +57,7 @@ A tit-for-tat strategy basically means:
 
 This can be complemented with node selection mechanisms.
 
-# SWAP protocol overview
+## SWAP protocol overview
 
 We use SWAP for accounting and settlement in conjunction with other request/reply protocols in Waku v2,
 where accounting is done in a pairwise manner.
@@ -75,7 +75,7 @@ Sending cheques is done once payment threshold is hit.
 
 See [Book of Swarm](https://web.archive.org/web/20210126130038/https://gateway.ethswarm.org/bzz/latest.bookofswarm.eth) section 3.2. on Peer-to-peer accounting etc., for more context and details.
 
-## Accounting
+### Accounting
 
 Nodes perform their own accounting for each relevant peer based on some "volume"/bandwidth metric. For now we take this to mean the number of `WakuMessage`s exchanged.
 
@@ -85,7 +85,7 @@ Each accounting balance SHOULD be w.r.t. to a given protocol it is accounting fo
 
 NOTE: This may later be complemented with other metrics, either as part of SWAP or more likely outside of it. For example, online time can be communicated and attested to as a form of enhanced quality of service to inform peer selection.
 
-## Flow
+### Flow
 
 Assuming we have two store nodes, one operating mostly as a client (A) and another as server (B).
 
@@ -97,7 +97,7 @@ Assuming we have two store nodes, one operating mostly as a client (A) and anoth
 
 Note that not all of these steps are mandatory in initial stages, see below for more details. For example, the payment threshold MAY initially be set out of bounds, and policy is only activated in the mock and hard phase.
 
-## Protobufs
+### Protobufs
 
 We use protobuf to specify the handshake and signature. This current protobuf is a work in progress. This is needed for mock and hard phase.
 
@@ -120,7 +120,7 @@ message Cheque {
 }
 ```
 
-# Incremental integration and roll-out
+## Incremental integration and roll-out
 
 To incrementally integrate this into Waku v2, we have divided up the roll-out into three phases:
 
@@ -131,7 +131,7 @@ To incrementally integrate this into Waku v2, we have divided up the roll-out in
 
 An implementation MAY support any of these phases.
 
-## Soft phase
+### Soft phase
 
 In the soft phase only accounting is performed, without consequence for the
 peers. No disconnect or sending of cheques is performed at this tage.
@@ -143,7 +143,7 @@ and it MAY be done for other request/reply protocols.
 A client SHOULD log accounting state per peer
 and SHOULD indicate when a peer is out of bounds (either of its thresholds met).
 
-## Mock phase
+### Mock phase
 
 In the mock phase, we send mock cheques and send cheques/disconnect peers as appropriate.
 
@@ -153,7 +153,7 @@ In the mock phase, we send mock cheques and send cheques/disconnect peers as app
 - If any node behaves badly, the other node is free to disconnect and pick another node.
   - Peer rating is out of scope of this specification.
 
-## Hard phase
+### Hard phase
 
 In the hard phase, in addition to sending cheques and activating policy, this is
 done with blockchain integration on a public testnet. More details TBD.
@@ -170,7 +170,7 @@ This also includes settlements where cheques can be redeemed.
 
 4. [Book of Swarm](https://web.archive.org/web/20210126130038/https://gateway.ethswarm.org/bzz/latest.bookofswarm.eth/)
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 

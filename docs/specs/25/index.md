@@ -16,7 +16,7 @@ This specification is largely based on [EIP-1459](https://eips.ethereum.org/EIPS
 with the only deviation being the type of address being encoded (`multiaddr` vs `enr`).
 Also see [this earlier explainer](https://vac.dev/dns-based-discovery) for more background on the suitability of DNS based discovery for Waku v2.
 
-# List encoding
+## List encoding
 
 The peer list MUST be encoded as a [Merkle tree](https://www.wikiwand.com/en/Merkle_tree).
 EIP-1459 specifies [the URL scheme](https://eips.ethereum.org/EIPS/eip-1459#specification) to refer to such a DNS node list.
@@ -44,12 +44,12 @@ which limits the number of hashes that can be contained within a branch entry.
 The subdomain name for each entry is the base32 encoding of the abbreviated keccak256 hash of its text content.
 See [this example](https://eips.ethereum.org/EIPS/eip-1459#dns-record-structure) of a fully populated tree for more information.
 
-# Entry types
+## Entry types
 
 The following entry types are derived from [EIP-1459](https://eips.ethereum.org/EIPS/eip-1459)
 and adapted for use with `multiaddrs`:
 
-## Root entry
+### Root entry
 
 The tree root entry MUST use the following format:
 
@@ -67,7 +67,7 @@ over the keccak256 hash of the root record content,
 excluding the `sig=` part,
 encoded as URL-safe base64
 
-## Branch entry
+### Branch entry
 
 Branch entries MUST take the format:
 
@@ -78,11 +78,11 @@ matree-branch:<h₁>,<h₂>,...,<hₙ>
 where
 - `<h₁>,<h₂>,...,<hₙ>` are the hashes of other subtree entries
 
-## Leaf entries
+### Leaf entries
 
 There are two types of leaf entries:
 
-### Link entries
+#### Link entries
 
 For the subtree pointed to by `link-root`,
 leaf entries MUST take the format:
@@ -93,7 +93,7 @@ matree://<key>@<fqdn>
 
 which links to a different list located in another domain.
 
-### `multiaddr` entries
+#### `multiaddr` entries
 
 For the subtree pointed to by `ma-root`,
 leaf entries MUST take the format:
@@ -104,7 +104,7 @@ ma:<multiaddr>
 
 which contains the `multiaddr` of a `libp2p` peer.
 
-# Client protocol
+## Client protocol
 
 A client MUST adhere to the [client protocol](https://eips.ethereum.org/EIPS/eip-1459#client-protocol) as specified in EIP-1459,
 and adapted for usage with `multiaddr` entry types below:
@@ -119,12 +119,12 @@ and verify that the content matches the hash.
 	- `matree-branch`: parse the list of hashes and continue resolving them (step 3).
 	- `ma`: import the `multiaddr` and add it to a local list of discovered nodes.
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via
 [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 1. [`10/WAKU2`](https://rfc.vac.dev/spec/10/)
 1. [EIP-1459: Client Protocol](https://eips.ethereum.org/EIPS/eip-1459#client-protocol)

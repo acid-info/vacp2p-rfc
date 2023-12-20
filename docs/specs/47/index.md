@@ -10,7 +10,7 @@ contributors:
 ---
 
 
-# Abstract
+## Abstract
 
 This document extends the [11/WAKU2-RELAY](/spec/11/), specifying Waku Tor Push,
 which allows nodes to push messages via Tor into the Waku relay network.
@@ -24,21 +24,21 @@ It uses the same identifier as Waku relay.
 This allows Waku relay nodes that are oblivious to Tor Push to process messages received via Tor Push.
 
 
-# Functional Operation
+## Functional Operation
 
 In its current version, Waku Tor Push corresponds to [46/GOSSIPSUB-TOR-PUSH](/spec/46)
 applied to [11/WAKU2-RELAY](/spec/11/),
 instead of [libp2p gossipsub](https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/README.md).
 
-# Security/Privacy Considerations
+## Security/Privacy Considerations
 
 see [46/GOSSIPSUB-TOR-PUSH](/spec/46)
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 * [11/WAKU2-RELAY](/spec/11/)
 * [libp2p gossipsub](https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/README.md)

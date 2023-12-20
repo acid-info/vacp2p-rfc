@@ -8,7 +8,7 @@ editor: Hanno Cornelius <hanno@status.im>
 contributors:
 ---
 
-# Abstract
+## Abstract
 
 This RFC specifies an opinionated deployment of [10/WAKU2](https://rfc.vac.dev/spec/10/) protocols
 to form a coherent and shared decentralized messaging network
@@ -21,14 +21,14 @@ We'll refer to this opinionated deployment simply as
 _the public Waku Network_, _the Waku Network_ or, if the context is clear, _the network_
 in the rest of this document.
 
-# Theory / Semantics
+## Theory / Semantics
 
-## Routing protocol
+### Routing protocol
 
 The Waku Network is built on the [17/WAKU2-RLN-RELAY](https://rfc.vac.dev/spec/17/) routing protocol,
 which in turn is an extension of [11/WAKU2-RELAY](https://rfc.vac.dev/spec/11/) with spam protection measures.
 
-## Network shards
+### Network shards
 
 Traffic in the Waku Network is sharded into eight [17/WAKU2-RLN-RELAY](https://rfc.vac.dev/spec/17/) pubsub topics.
 Each pubsub topic is named according to the static shard naming format
@@ -51,13 +51,13 @@ inbound/outbound peer that attempts to connect supports. In any of the following
 * [WAKU-METADATA](https://rfc.vac.dev/spec/66/) reports an empty `<cluster_id>`.
 * [WAKU-METADATA](https://rfc.vac.dev/spec/66/) reports a `<cluster_id>` different than `1`.
 
-## Roles
+### Roles
 
 There are two distinct roles evident in the network, those of:
 1) nodes, and
 2) applications.
 
-### Nodes
+#### Nodes
 
 Nodes are the individual software units
 using [10/WAKU2](https://rfc.vac.dev/spec/10/) protocols to form a p2p messaging network.
@@ -67,7 +67,7 @@ Nodes can also provide various services to the network,
 such as storing historical messages or protecting the network against spam.
 See the section on [default services](#default-services) for more.
 
-#### Relay nodes
+##### Relay nodes
 
 Relay nodes MUST follow [17/WAKU2-RLN-RELAY](https://rfc.vac.dev/spec/17/)
 to route messages to other nodes in the network
@@ -80,7 +80,7 @@ it SHOULD be subscribed to all the shards servicing that application.
 If resource restrictions prevent a relay node from servicing all shards used by the encapsulating application,
 it MAY choose to support some shards as a non-relay node.
 
-#### Bootstrapping and discovery
+##### Bootstrapping and discovery
 
 Nodes MAY use any method to bootstrap connection to the network,
 but it is RECOMMENDED that each node retrieves a list of bootstrap peers to connect to using [EIP-1459 DNS-based discovery](https://eips.ethereum.org/EIPS/eip-1459).
@@ -90,7 +90,7 @@ as described in [51/WAKU2-RELAY-SHARDING](https://rfc.vac.dev/spec/51/#discovery
 The ENR MUST be updated if the set of supported shards change.
 A node MAY choose to ignore discovered peers that do not support any of the shards in its own subscribed set.
 
-#### Transports
+##### Transports
 
 Relay nodes MUST follow [10/WAKU2](https://rfc.vac.dev/spec/10/) specifications with regards to supporting different transports.
 If TCP transport is available, each relay node MUST support it as transport for both dialing and listening.
@@ -98,7 +98,7 @@ In addition, a relay node SHOULD support secure websockets for bidirectional com
 for example to allow connections from and to web browser-based clients.
 A relay node MAY support unsecure websockets if required by the application or running environment.
 
-#### Default services
+##### Default services
 
 For each supported shard,
 each relay node SHOULD enable and support the following protocols as a service node:
@@ -107,14 +107,14 @@ each relay node SHOULD enable and support the following protocols as a service n
 3. [19/WAKU2-LIGHTPUSH](https://rfc.vac.dev/spec/19/) to allow resource-restricted peers to request publishing a message to the network on their behalf.
 4. [34/WAKU2-PEER-EXCHANGE](https://rfc.vac.dev/spec/34/) to allow resource-restricted peers to discover more peers in a resource efficient way.
 
-#### Store service nodes
+##### Store service nodes
 
 Each relay node SHOULD support [13/WAKU2-STORE](https://rfc.vac.dev/spec/13/) as a store service node,
 for each supported shard.
 The store SHOULD be configured to retain at least `12` hours of messages per supported shard.
 Store service nodes SHOULD only store messages with a valid [`rate_limit_proof`](#message-attributes) attribute.
 
-#### Non-relay nodes
+##### Non-relay nodes
 
 Nodes MAY opt out of relay functionality on any network shard
 and instead request services from relay nodes as clients
@@ -124,14 +124,14 @@ using any of the defined service protocols:
 3. [19/WAKU2-LIGHTPUSH](https://rfc.vac.dev/spec/19/) to request publishing a message to the network.
 4. [34/WAKU2-PEER-EXCHANGE](https://rfc.vac.dev/spec/34/) to discover more peers in a resource efficient way.
 
-#### Store client nodes
+##### Store client nodes
 
 Nodes MAY request historical messages from [13/WAKU2-STORE](https://rfc.vac.dev/spec/13/) service nodes as store clients.
 A store client SHOULD discard any messages retrieved from a store service node that do not contain a valid [`rate_limit_proof`](#message-attributes) attribute.
 The client MAY consider service nodes returning messages without a valid [`rate_limit_proof`](#message-attributes) attribute as untrustworthy.
 The mechanism by which this may happen is currently underdefined.
 
-### Applications
+#### Applications
 
 Applications are the higher-layer projects or platforms that make use of the generalized messaging capability of the network.
 In other words, an application defines a payload used in the various [10/WAKU2](https://rfc.vac.dev/spec/10/) protocols.
@@ -139,7 +139,7 @@ Any participant in an application SHOULD make use of an underlying node in order
 Applications SHOULD make use of an [autosharding](#autosharding) API
 to allow the underlying node to automatically select the target shard on the Waku Network. See the section on [autosharding](#autosharding) for more.
 
-## RLN rate-limiting
+### RLN rate-limiting
 
 The [17/WAKU2-RLN-RELAY](https://rfc.vac.dev/spec/17/) network uses [32/RLN-V1](https://rfc.vac.dev/spec/32/) proofs
 to ensure that a pre-agreed rate limit is not exceeded by any publisher.
@@ -150,7 +150,7 @@ This bandwidth limit SHOULD be enforced using [bandwidth validation mechanism](#
 This implies that quality of service and reliability is significantly lower for messages without proofs
 and at times of high network utilization these messages may not be relayed at all.
 
-### RLN Parameters
+#### RLN Parameters
 
 For the Waku Network,
 the `epoch` is set to `1` second
@@ -161,7 +161,7 @@ All nodes, validators and publishers,
 SHOULD use Network Time Protocol (NTP) to synchronize their own clocks,
 thereby ensuring valid timestamps for proof generation and validation.
 
-### Memberships
+#### Memberships
 
 Each publisher to the Waku Network SHOULD register an RLN membership
 with one of the RLN storage contracts
@@ -171,7 +171,7 @@ RLN membership setup and registration MUST follow [17/WAKU-RLN-RELAY](https://rf
 with the `staked_fund` set to `0`.
 In other words, the Waku Network does not use RLN staking. 
 
-### RLN Proofs
+#### RLN Proofs
 
 Each RLN member MUST generate and attach an RLN proof to every published message
 as described in [17/WAKU-RLN-RELAY](https://rfc.vac.dev/spec/17/#publishing).
@@ -182,14 +182,14 @@ This incentivizes all nodes to validate RLN proofs
 and reject messages violating rate limits
 in order to continue participating in the network.
 
-## Network traffic
+### Network traffic
 
 All payload on the Waku Network MUST be encapsulated in a [14/WAKU2-MESSAGE](https://rfc.vac.dev/spec/14/)
 with rate limit proof extensions defined for [17/WAKU2-RLN-RELAY](https://rfc.vac.dev/spec/17/#payloads).
 Each message on the Waku Network SHOULD be validated by each relayer,
 according to the rules discussed under [message validation](#message-validation).
 
-### Message Attributes
+#### Message Attributes
 
 - The mandatory `payload` attribute MUST contain the message data payload as crafted by the application.
 - The mandatory `content_topic` attribute MUST specify a string identifier that can be used for content-based filtering. This is also crafted by the application. See [Autosharding](#autosharding) for more on the content topic format.
@@ -199,13 +199,13 @@ according to the rules discussed under [message validation](#message-validation)
 - The optional `ephemeral` attribute MUST be set to `true` if the message should not be persisted by the Waku Network.
 - The optional `rate_limit_proof` attribute SHOULD be populated with the RLN proof as set out in [RLN Proofs](#rln-proofs). Messages with this field unpopulated MAY be discarded from the network by relayers. This field MUST be populated if the message should be persisted by the Waku Network.
 
-### Message Size
+#### Message Size
 
 Any Waku Message published to the network MUST NOT exceed an absolute maximum size of `150` kilobytes.
 This limit applies to the entire message after protobuf serialization, including attributes.
 It is RECOMMENDED not to exceed an average size of `4` kilobytes for Waku Messages published to the network.
 
-### Message Validation
+#### Message Validation
 
 Relay nodes MUST apply [gossipsub v1.1 validation](https://github.com/libp2p/specs/blob/c96c9ec5909d64fe020d7630f3fd982bc18fd06a/pubsub/gossipsub/gossipsub-v1.1.md#extended-validators) to each relayed message and
 SHOULD apply all of the rules set out in the section below to determine the validity of a message.
@@ -217,13 +217,13 @@ repeated here from the [gossipsub specification](https://github.com/libp2p/specs
 
 The following validation rules are defined:
 
-#### Decoding failure
+##### Decoding failure
 
 If a message fails to decode as a valid [14/WAKU2-MESSAGE](https://rfc.vac.dev/spec/14/).
 the relay node MUST _reject_ the message.
 This SHOULD trigger a penalty against the transmitting peer.
 
-#### Invalid timestamp
+##### Invalid timestamp
 
 If a message has a timestamp deviating by more than `20` seconds
 either into the past or the future
@@ -233,14 +233,14 @@ This allows for some deviation between internal clocks,
 network routing latency and
 an optional [fudge factor when timestamping new messages](#message-attributes).
 
-#### Free bandwidth exceeded
+##### Free bandwidth exceeded
 
 If a message contains no RLN proof
 and the current bandwidth utilization on the shard the message was published to
 equals or exceeds `1` Mbps,
 the relay node SHOULD _ignore_ the message.
 
-#### Invalid RLN epoch
+##### Invalid RLN epoch
 
 If a message contains an RLN proof
 and the `epoch` attached to the proof deviates by more than `max_epoch_gap` seconds
@@ -248,14 +248,14 @@ from the relay node's own `epoch`,
 the relay node MUST _reject_ the message.
 `max_epoch_gap` is [set to `20` seconds](#rln-parameters) for the Waku Network.
 
-#### Invalid RLN proof
+##### Invalid RLN proof
 
 If a message contains an RLN proof
 and the zero-knowledge proof is invalid
 according to the verification process described in [32/RLN-V1](https://rfc.vac.dev/spec/32/#verification),
 the relay node MUST _ignore_ the message.
 
-#### Rate limit exceeded
+##### Rate limit exceeded
 
 If a message contains an RLN proof
 and the relay node detects double signaling
@@ -264,7 +264,7 @@ the relay node MUST _reject_ the message
 for violating the agreed rate limit of `1` message every `1` second.
 This SHOULD trigger a penalty against the transmitting peer.
 
-## Autosharding
+### Autosharding
 
 Nodes in the Waku Network SHOULD allow encapsulating applications to use autosharding,
 as defined in [51/WAKU2-RELAY-SHARDING](https://rfc.vac.dev/spec/51/#automatic-sharding)
@@ -286,20 +286,20 @@ from the content topics provided by the application
 using the hashing mechanism defined in [51/WAKU2-RELAY-SHARDING](https://rfc.vac.dev/spec/51/#automatic-sharding).
 
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 (TBD)
 
-## normative
+### normative
 (TBD)
 A list of references that MUST be read to fully understand and/or implement this protocol.
 See [RFC3967 Section 1.1](https://datatracker.ietf.org/doc/html/rfc3967#section-1.1).
 
-## informative
+### informative
 (TBD)
 A list of additional references.
 

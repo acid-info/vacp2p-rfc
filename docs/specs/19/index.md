@@ -10,7 +10,7 @@ contributors:
 
 **Protocol identifier**: `/vac/waku/lightpush/2.0.0-beta1`
 
-# Motivation and Goals
+## Motivation and Goals
 
 Light nodes with short connection windows and limited bandwidth wish to publish messages into the Waku network.
 Additionally, there is sometimes a need for confirmation that a message has been received "by the network"
@@ -18,7 +18,7 @@ Additionally, there is sometimes a need for confirmation that a message has been
 
 `19/WAKU2-LIGHTPUSH` is a request/response protocol for this.
 
-# Payloads
+## Payloads
 
 ```protobuf
 syntax = "proto3";
@@ -41,25 +41,25 @@ message PushRPC {
 }
 ```
 
-## Message Relaying
+### Message Relaying
 
 Nodes that respond to `PushRequests` MUST either
 relay the encapsulated message via [11/WAKU2-RELAY](/spec/11) protocol on the specified `pubsub_topic`,
 or forward the `PushRequest` via 19/LIGHTPUSH on a [44/WAKU2-DANDELION](https://rfc.vac.dev/spec/44/) stem.
 If they are unable to do so for some reason, they SHOULD return an error code in `PushResponse`.
 
-## Security Considerations
+### Security Considerations
 
 Since this can introduce an amplification factor, it is RECOMMENDED for the node relaying to the rest of the network to take extra precautions.
 This can be done by rate limiting via [17/WAKU2-RLN-RELAY](https://rfc.vac.dev/spec/17/).
 
 Note that the above is currently not fully implemented.
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 * [11/WAKU2-RELAY](/spec/11)
 * [44/WAKU2-DANDELION](https://rfc.vac.dev/spec/44/)

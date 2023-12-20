@@ -7,14 +7,14 @@ editor: Daniel Kaiser <danielkaiser@status.im>
 contributors:
 ---
 
-# Abstract
+## Abstract
 
 `33/WAKU2-DISCV5` specifies a modified version of [Ethereum's Node Discovery Protocol v5](https://github.com/ethereum/devp2p/blob/master/discv5/discv5.md) as a means for ambient node discovery.
 [10/WAKU2](/specs/10) uses the `33/WAKU2-DISCV5` ambient node discovery network for establishing a decentralized network of interconnected Waku2 nodes.
 In its current version, the `33/WAKU2-DISCV5` discovery network is isolated from the Ethereum Discovery v5 network.
 Isolation improves discovery efficiency, which is especially significant with a low number of Waku nodes compared to the total number of Ethereum nodes.
 
-# Disclaimer
+## Disclaimer
 
 This version of `33/WAKU2-DISCV5` has a focus on timely deployment of an efficient discovery method for [10/WAKU2](/specs/10).
 Establishing a separate discovery network is in line with this focus.
@@ -22,7 +22,7 @@ However, we are aware of potential resilience problems (see section on security 
 and researching hybrid approaches.
 
 
-# Background and Rationale
+## Background and Rationale
 
 [11/WAKU2-RELAY](/specs/11) assumes the existence of a network of Waku2 nodes.
 For establishing and growing this network, new nodes trying to join the Waku2 network need a means of discovering nodes within the network.
@@ -38,9 +38,9 @@ The unique selling point of `33/WAKU2-DISCV5` is its holistic view of the networ
 While the other methods provide either a fixed or local set of nodes, `33/WAKU2-DISCV5` can provide a random sample of Waku2 nodes.
 Future iterations of this document will add the possibility of efficiently discovering Waku2 nodes that have certain capabilities, e.g. holding messages of a certain time frame during which the querying node was offline.
 
-## Separate Discovery Network
+### Separate Discovery Network
 
-### w.r.t. Waku2 Relay Network
+#### w.r.t. Waku2 Relay Network
 
 `33/WAKU2-DISCV5` spans an overlay network separate from the [GossipSub](https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/README.md) network [11/WAKU2-RELAY](/specs/11) builds on.
 Because it is a P2P network on its own, it also depends on bootstrap nodes.
@@ -48,7 +48,7 @@ Having a separate discovery network reduces load on the bootstrap nodes, because
 This also increases decentralization.
 
 
-### w.r.t. Ethereum Discovery v5
+#### w.r.t. Ethereum Discovery v5
 
 `33/WAKU2-DISCV5` spans a discovery network isolated from the Ethereum Discovery v5 network.
 
@@ -71,7 +71,7 @@ As part of our [discv5 roadmap](https://forum.vac.dev/t/waku-v2-discv5-roadmap-d
 * [Discv5 topic discovery](https://github.com/ethereum/devp2p/blob/master/discv5/discv5-theory.md#topic-advertisement) with adjustments (ideally upstream)
 * a hybrid solution that uses both a separate discv5 network and a Waku-ENR-filtered Ethereum discv5 network
 
-# Semantics
+## Semantics
 
 `33/WAKU2-DISCV5` fully inherits the [discv5 semantics](https://github.com/ethereum/devp2p/blob/master/discv5/discv5-theory.md).
 
@@ -80,11 +80,11 @@ Nodes MAY use the [libp2p AutoNAT protocol](https://github.com/libp2p/specs/blob
 Nodes SHOULD only announce publicly reachable addresses via Waku2 discv5,
 to avoid cluttering peer lists with nodes that are not reachable.
 
-# Wire Format Specification
+## Wire Format Specification
 
 `33/WAKU2-DISCV5` inherits the [discv5 wire protocol](https://github.com/ethereum/devp2p/blob/master/discv5/discv5-wire.md) except for the following differences
 
-## WAKU2-Specific `protocol-id`
+### WAKU2-Specific `protocol-id`
 
 Ethereum discv5:
 
@@ -112,7 +112,7 @@ nonce         = uint96    -- nonce of message
 ```
 
 
-# Suggestions for Implementations
+## Suggestions for Implementations
 
 Existing discv5 implementations
 
@@ -120,13 +120,13 @@ Existing discv5 implementations
 * can be forked followed by changing the `protocol-id` string as in [go-waku](https://github.com/status-im/go-waku/blob/master/waku/v2/discv5/discover.go#L135-L137).
 
 
-# Security Considerations
+## Security Considerations
 
-## Sybil attack
+### Sybil attack
 
 Implementations should limit the number of bucket entries that have the same network parameters (IP address / port) to mitigate Sybil attacks.
 
-## Eclipse attack
+### Eclipse attack
 
 Eclipse attacks aim to eclipse certain regions in a DHT.
 Malicious nodes provide false routing information for certain target regions.
@@ -137,7 +137,7 @@ If nodes providing specific information are closer to each other, they cover a s
 
 Sybil attacks greatly increase the power of eclipse attacks, because they significantly reduce resources necessary to mount a successful eclipse attack.
 
-## Security Implications of a Separate Discovery Network
+### Security Implications of a Separate Discovery Network
 
 A dedicated Waku discovery network is more likely to be subject to successful eclipse attacks (and to DoS attacks in general).
 This is because eclipsing in a smaller network requires less resources for the attacker.
@@ -150,7 +150,7 @@ The efficiency loss is especially severe with a relatively small number of Waku 
 
 Properly protecting against eclipse attacks is challenging and raises research questions that we will address in future stages of our discv5 roadmap.
 
-# References
+## References
 
 1. [`10/WAKU2`](/specs/10)
 1. [`11/WAKU2-RELAY`](/specs/11)
@@ -168,6 +168,6 @@ Properly protecting against eclipse attacks is challenging and raises research q
 1. [implementation: Nim](https://github.com/kaiserd/nim-eth/blob/add-selectable-protocol-id-static/eth/p2p/discoveryv5/encoding.nim)
 1. [implementation: Go](https://github.com/status-im/go-waku/blob/master/waku/v2/discv5/discover.go)
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).

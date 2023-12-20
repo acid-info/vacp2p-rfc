@@ -12,7 +12,7 @@ contributors:
 - Alvaro Revuelta <alrevuelta@status.im>
 ---
 
-# Abstract
+## Abstract
 
 This document describes how to scale [56/STATUS-COMMUNITIES](/spec/56/) as well as [55/STATUS-1TO1-CHAT](/spec/55/)
 using existing Waku v2 protocols and components.
@@ -24,7 +24,7 @@ This document informs about scaling at the current stage of research and shows i
 Practical feasibility is also a core goal for us.
 We believe in incremental improvement, i.e. having a working decentralized scaling solution with trade-offs is better than a fully centralized solution.
 
-# Background and Motivation
+## Background and Motivation
 
 [56/STATUS-COMMUNITIES](/spec/56/) as well as [55/STATUS-1TO1-CHAT](/spec/55/) use Waku v2 protocols.
 Both use Waku content topics (see [23/WAKU2-TOPICS](/spec/23/)) for content based filtering.
@@ -45,7 +45,7 @@ each content topics can have a large set of active users, but still has to fit i
 each node that is interested in this content topic has to be subscribed to all respective shards, which does not scale.
 Splitting content topics in a more sophisticated and efficient way will be part of a future document.
 
-# Relay Shards
+## Relay Shards
 
 Sharding the [Waku Relay](/spec/11/) network is an integral part of scaling the Status app.
 
@@ -60,7 +60,7 @@ but takes care of shard discovery.
 
 The 1024 shards within the main Status shard cluster are allocated as follows.
 
-## Shard Allocation
+### Shard Allocation
 
 | shard index   |    usage                         |
 |    ---        |    ---                           |
@@ -80,7 +80,7 @@ an example for the shard with index `18` in the Status shard cluster:
 
 In other words, the mesh network with the pubsub topic name `/waku/2/rs/16/18` carries messages associated with shard `18` in the Status shard cluster.
 
-### Implementation Suggestion
+#### Implementation Suggestion
 
 The Waku implementation should offer an interface that allows Status nodes to subscribe to Status specific content topics like
 
@@ -97,7 +97,7 @@ subscribe("/status/xyz", 18)
 
 which means: connect to the `"status/xyz"` content topic on shard `18` within the Status shard cluster.
 
-## Status Communities
+### Status Communities
 
 In order to associate a community with a shard,
 the community description protobuf is extended by the field
@@ -142,20 +142,20 @@ The recommendation for now is to keep it as a configuration option of the Status
 
 Status communities can be mapped to shards in two ways: static, and owner-based.
 
-### Static Mapping
+#### Static Mapping
 
 With static mapping, communities are assigned a specific shard index within the Status shard cluster.
 This mapping is similar in nature to the shard cluster allocation in [52/WAKU2-RELAY-STATIC-SHARD-ALLOC](/spec/52/).
 Shard indices allocated in that way are in the range `16 - 127`.
 The Status CC community uses index `16` (not to confuse with shard cluster index `16`, which is the Status shard cluster).
 
-### Owner Mapping
+#### Owner Mapping
 
 > *Note*: This way of mapping will be specified post-MVP.
 
 Community owners can choose to map their communities to any shard within the index range `128 - 767`.
 
-## 1:1 Chat
+### 1:1 Chat
 
 [55/STATUS-1TO1-CHAT](/spec/55) uses partitioned topics to map 1:1 chats to a set of 5000 content topics.
 This document extends this mapping to 8192 content topics that are, in turn, mapped to 128 shards in the index range of `768 - 895`.
@@ -172,7 +172,7 @@ shardIndex = 768 + mod(publicKey, shardNum)
 
 ```
 
-# Infrastructure Nodes
+## Infrastructure Nodes
 
 As described in [30/ADAPTIVE-NODES](/spec/30/),
 Waku supports a continuum of node types with respect to available resources.
@@ -185,18 +185,18 @@ Infrastructure nodes are especially important for providing connectivity in the 
 Infrastructure nodes are not limited to Status fleets, or nodes run by community owners.
 Anybody can run infrastructure nodes.
 
-## Statically-Mapped Communities
+### Statically-Mapped Communities
 
 Infrastructure nodes are provided by the community owner, or by members of the respective community.
 
-## Owner-Mapped Communities
+### Owner-Mapped Communities
 
 Infrastructure nodes are part of a subset of the shards in the range `128 - 767`.
 Recommendations on choosing this subset will be added in a future version of this document.
 
 Status fleet nodes make up a part of these infrastructure nodes.
 
-## 1:1 chat
+### 1:1 chat
 
 Infrastructure nodes are part of a subset of the shards in the range `768 - 985` (similar to owner-mapped communities).
 Recommendations on choosing this subset will be added in a future version of this document.
@@ -210,13 +210,13 @@ but can significantly improve scaling.
 We still have k-anonymity because several chat pairs are mapped into one content topic.
 We could improve on this in the future, and research the applicability of PIR (private information retrieval) techniques in the future.
 
-# Infrastructure Shards
+## Infrastructure Shards
 
 Waku messages are typically relayed in larger mesh networks comprised of nodes with varying resource profiles (see [30/ADAPTIVE-NODES](/spec/30/)).
 To maximise scaling, relaying of specific message types can be dedicated to shards where only infrastructure nodes with very strong resource profiles relay messages.
 This comes as a trade-off to decentralization.
 
-## Control Message Shards
+### Control Message Shards
 
 To get the maximum scaling for select large communities for the Status scaling MVP,
 specific control messages that cause significant load (at a high user number) SHOULD be moved to a separate control message shard.
@@ -236,12 +236,12 @@ Each large community (in the index range of `16 - 127`) can get its dedicated co
 The Status CC community uses shard `896` as its control message shard.
 This comes with trade-offs to decentralization and anonymity (see *Security Considerations* section).
 
-## Media Shards
+### Media Shards
 
 Similar to control messages, media-heavy communities should use separate media shards (in the index range `896 - 1023`) for disseminating messages with large media data.
 The Status CC community uses shard `897` as its media shard.
 
-## Infrastructure-focused Community
+### Infrastructure-focused Community
 
 Large communities MAY choose to mainly rely on infrastructure nodes for *all* message transfers (not limited to control, and media messages).
 Desktop clients of such communities should use light protocols as the default.
@@ -249,7 +249,7 @@ Strong Desktop clients MAY opt in to support the relay network.
 
 > *Note*: This is not planned for the MVP.
 
-# Light Protocols
+## Light Protocols
 
 Light protocols may be used to save bandwidth,
 at the (global) cost of not contributing to the network.
@@ -263,7 +263,7 @@ Light protocols comprise
 * [12/WAKU2-FILTER](/spec/12/) for requesting messages with specific attributes
 * [34/WAKU2-PEER-EXCHANGE](/spec/34/) for discovering peers
 
-# Waku Archive
+## Waku Archive
 
 Archive nodes are Waku nodes that offer the Waku archive service via the Waku store protocol ([13/WAKU2-STORE](/spec/13/)).
 They are part of a set of shards and store all messages disseminated in these shards.
@@ -279,12 +279,12 @@ The recommendation for the allocation of archive nodes to shards is similar to t
 allocation of infrastructure nodes to shards described above.
 In fact, the archive service can be offered by infrastructure nodes.
 
-# Discovery
+## Discovery
 
 Shard discovery is covered by [51/WAKU2-RELAY-SHARDING](/spec/51/).
 This allows the Status app to abstract from the discovery process and simply address shards by their index.
 
-## Libp2p Rendezvous and Circuit-Relay
+### Libp2p Rendezvous and Circuit-Relay
 
 To make nodes behind restrictive NATs discoverable,
 this document suggests using [libp2p rendezvous](https://github.com/libp2p/specs/blob/master/rendezvous/README.md).
@@ -317,7 +317,7 @@ Nodes that are not behind restrictive NATs MAY register at rendezvous points, to
 this helps increasing discoverability, and by extension connectivity.
 Such nodes SHOULD, however, not register at circuit relays.
 
-### Announcing Shard Participation
+#### Announcing Shard Participation
 
 Registering a namespace via [lib-p2p rendezvous](https://github.com/libp2p/specs/blob/master/rendezvous/README.md#interaction)
 is done via a register query:
@@ -348,7 +348,7 @@ A discovery query for nodes that are part of this shard would look like
 DISCOVER{ns: 0x727300100002}
 ```
 
-# DoS Protection
+## DoS Protection
 
 Hereunder we describe the "opt-in message signing for DoS prevention" solution, designed *ad hoc* for Status MVP.
 
@@ -374,7 +374,7 @@ This solution introduces two roles:
 * Publisher: A node that knows the `private-key-topic` associated to `public-key-topic`, that can publish messages with a valid `message-signature` that are accepted and relayed by the nodes implementing this feature.
 * Relayer: A node that knows the `public-key-topic`, which can be used to verify if the messages were signed with the equivalent `private-key-topic`. It allows distinguishing valid from invalid messages which protect the node against DoS attacks, assuming that the users of the key send messages of a reasonable size and rate. Note that a node can validate messages and relay them or not without knowing the private key.
 
-## Design requirements (publisher)
+### Design requirements (publisher)
 
 A publisher that wants to send messages that are relayed in the network for a given `protected-pubsub-topic` shall:
 * be able to sign messages with the `private-key-topic` configured for that topic, producing a ECDSA signature of 64 bytes using deterministic signing complying with RFC 6979.
@@ -388,7 +388,7 @@ sha256(concat(pubsubTopic, payload, contentTopic, timestamp, ephemeral))
 
 Where fields are serialized into bytes using little-endian. Note that `ephemeral` is a boolean that is serialized to `0` if `false` and `1` if `true`.
 
-## Design requirements (relay)
+### Design requirements (relay)
 
 Requirements for the relay are listed below:
 
@@ -410,14 +410,14 @@ Other requirements:
 This protects each peer from DoS, since this score is used to trigger disconnections from nodes attempting to DoS them.
 
 
-## Required changes
+### Required changes
 
 This solution is designed to be backward compatible so that nodes validating messages can coexist in the same topic with other nodes that don't perform validation. But note that only nodes that perform message validation will be protected against DoS. Nodes wishing to opt-in this DoS protection feature shall:
 * Generate a `private-key-topic` and distribute it to a curated list of users, that are trusted to send messages at a reasonable rate.
 * Redeploy the nodes, adding a new configuration where a `protected-pubsub-topic` is configured with a `public-key-topic`, used to verify the messages being relayed.
 
 
-## Test vectors
+### Test vectors
 
 Relay nodes complying with this specification shall accept the following message in the configured pubsub topic.
 
@@ -448,29 +448,29 @@ message.meta = 127FA211B2514F0E974A055392946DC1A14052182A6ABEFB8A6CD7C51DA1BF2E4
 
 Using `message.meta`, the relay node shall calculate the `app-message-hash` of the received message using `public-key-topic`, and with the values above, the signature should be verified, making the node `Accept` the message and relaying it to other nodes in the network.
 
-## Owner-Mapped Communities
+### Owner-Mapped Communities
 
 Basic idea:
 Tokenized load.
 
-## 1:1 Chat
+### 1:1 Chat
 
 An idea we plan to explore in the future:
 Map 1:1 chats to community shards, if both A and B are part of the respective community.
 This increases k-anonymity and benefits from community DoS protection.
 It could be rate-limited with RLN.
 
-# Security/Privacy Considerations
+## Security/Privacy Considerations
 
 This document makes several trade-offs to privacy and anonymity.
 Todo: elaborate.
 See [45/WAKU2-ADVERSARIAL-MODELS](/spec/45) for information on Waku Anonymity.
 
-# Copyright
+## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-# References
+## References
 
 * [56/STATUS-COMMUNITIES](/spec/56/)
 * [55/STATUS-1TO1-CHAT](/spec/55/)
@@ -492,6 +492,6 @@ Copyright and related rights waived via [CC0](https://creativecommons.org/public
 * [scoring](https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/gossipsub-v1.1.md#extended-validators)
 * [45/WAKU2-ADVERSARIAL-MODELS](/spec/45/)
 
-## Informative
+### Informative
 * [Circuit Relay](https://docs.libp2p.io/concepts/nat/circuit-relay/)
 * [31/WAKU2-ENR](/spec/31/)
