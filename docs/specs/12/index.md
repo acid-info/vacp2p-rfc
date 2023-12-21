@@ -5,7 +5,7 @@ name: Waku v2 Filter
 status: draft
 tags:
   - waku-core
-version: 01
+version: "01" 
 editor: Hanno Cornelius <hanno@status.im>
 contributors:
   - Dean Eigenmann <dean@status.im>

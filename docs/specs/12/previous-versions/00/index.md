@@ -1,6 +1,7 @@
 ---
 slug: /specs/12/previous-versions/00
 title: 12/WAKU2-FILTER
+version: "00"
 displayed_sidebar: defaultSidebar
 name: Waku v2 Filter
 status: draft
