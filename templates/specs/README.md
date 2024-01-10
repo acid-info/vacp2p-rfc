@@ -1,5 +1,5 @@
 ---
-slug: /specs/XX
+slug: /spec/XX
 title: XX/(WAKU2|LOGOS|CODEX|*)-TEMPLATE
 name: (Waku v2 | Logos | Codex) RFC Template
 status: (raw|draft|stable)

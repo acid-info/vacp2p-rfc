@@ -64,10 +64,10 @@ const config = {
                   si.type === 'category' &&
                   si.items.some(
                     item =>
-                      (item.type === 'doc' && item.id.startsWith('specs/')) ||
+                      (item.type === 'doc' && item.id.startsWith('spec/')) ||
                       (item.type === 'category' &&
                         item.link?.type === 'doc' &&
-                        item.link.id.startsWith('specs/')),
+                        item.link.id.startsWith('spec/')),
                   ),
               )
 
@@ -75,7 +75,7 @@ const config = {
 
               const specDocs = args.docs.filter(
                 doc =>
-                  doc.id.startsWith('specs/') && doc.id.split('/').length <= 3,
+                  doc.id.startsWith('spec/') && doc.id.split('/').length <= 3,
               )
 
               newCategories.push(
